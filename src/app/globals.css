@@ -136,3 +136,14 @@ body {
     @apply transition-all ease-in-out duration-300 cursor-pointer;
   }
 }
+
+/* Hide scrollbar for Chrome, Safari and Edge */
+.custom-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for Firefox */
+.custom-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none; /* IE and Edge */
+}

@@ -47,7 +47,7 @@ export function SignInButton() {
           <Button
             variant="outline"
             onClick={() => {
-              /* Add GitHub sign-in logic */
+              // LOGIC TO SIGNIN THROUGH GMAIL
             }}
           >
              {/* //ICON ADD  */}

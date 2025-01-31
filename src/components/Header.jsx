@@ -1,86 +1,49 @@
-import React from "react";
-import HeaderMenu from "./HeaderMenu";
 import Logo from "./Logo";
 import Container from "./Container";
 import MobileMenu from "./MobileMenu";
 import CartIcon from "./CartIcon";
-import SearchBar from "./SearchBar";
 import WishList from "./WishList";
 import { SignInButton } from "./SignInButton";
-import { Popover } from "./ui/popover";
-import { PopoverContent, PopoverTrigger } from "@radix-ui/react-popover";
-import { Button } from "./ui/button";
-import { User2Icon } from "lucide-react";
-import { Label } from "./ui/label";
+import UserProfile from "./UserProfile";
 import { Input } from "./ui/input";
+import { Search } from "lucide-react";
 
 const Header = () => {
-  //check user exist or not
-  const User = 1;
+  // Check if user exists
+  const User = null;
   return (
-    <header className="bg-red-white border-b border-b-gray-400 py-5">
-      <Container className="flex items-center justify-between gap-7 text-lightColor ">
-        <HeaderMenu />
-        <div className="w-auto md:w-1/3 flex item-center justify-center gap-2.5">
+    <header className="fixed top-0 left-0 w-full z-50 bg-white shadow-md border-b border-gray-300 py-4">
+      <Container className="flex items-center justify-between gap-5 px-4 md:px-6">
+        {/* Left Section: Logo */}
+        <div className="flex items-center gap-3">
           <MobileMenu />
-          <Logo className="tracking-tight">
-            GFD <span className="text-black">Store</span>
+          <Logo className="text-lg font-bold tracking-tight">
+            GFD <span className="text-orange-500">Store</span>
           </Logo>
         </div>
-        <div className="flex items-center justify-center gap-4">
-          <SearchBar />
+
+        <div className="hidden md:flex flex-1 justify-center">
+          <div className="relative w-1/2">
+            <Input
+              type="text"
+              placeholder="Search products..."
+              className="w-full pl-10 pr-4 py-2 border-2 rounded-lg focus:ring-2 focus:ring-orange-500 focus:outline-none"
+            />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-5 h-5" />
+          </div>
+        </div>
+
+        <div className="flex items-center gap-4">
           <CartIcon />
           <WishList />
           {!User ? (
             <SignInButton>
-              <div className="">
-                <button className="text-sm font-semibold hover:text-darkColor hoverEffect border p-2 bg-[#FFA500] rounded-lg">
-                  Login
-                </button>
-              </div>
+              <button className="px-4 py-2 text-sm font-semibold text-white bg-orange-500 rounded-lg hover:bg-orange-600 transition">
+                Login
+              </button>
             </SignInButton>
           ) : (
-            <div>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <User2Icon />
-                </PopoverTrigger>
-                <PopoverContent className="w-60 bg-white shadow-lg rounded-lg p-4">
-                {/* Profile Info */}
-                <div className="text-center">
-                  <h4 className="font-medium text-lg">{User.name}</h4>
-                  <p className="text-sm text-gray-500">{User.email}</p>
-                </div>
-
-                <div className="mt-4 space-y-2">
-                  {/* Edit Profile */}
-                  <Button
-                    variant="outline"
-                    className="w-full text-sm"
-                  >
-                    Edit Profile
-                  </Button>
-
-                  {/* View Orders */}
-                  <Button
-                    variant="outline"
-                    className="w-full text-sm"
-                  >
-                    My Orders
-                  </Button>
-
-                  {/* Logout */}
-                  <Button
-                    variant="destructive"
-                    className="w-full text-sm"
-                    
-                  >
-                    Logout
-                  </Button>
-                </div>
-              </PopoverContent>
-              </Popover>
-            </div>
+            <UserProfile />
           )}
         </div>
       </Container>
