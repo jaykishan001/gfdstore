@@ -8,11 +8,12 @@ import { Button } from "@/components/ui/button";
 import { triggerWishlistUpdate } from "./WishList";
 import { triggerCartUpdate } from "./CartIcon";
 
-export function ProductCard({ id, name, price, imageUrl, stock}) {
+export function ProductCard({ id, name, price, images, stock, sizeOptions }) {
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [isInCart, setIsInCart] = useState(false);
+  const imageUrl = images[0];
 
-  const isLoggedIn = false; // Replace with actual logic to check if user is logged in
+  const isLoggedIn = false; 
 
   const loadStorageData = () => {
     const wishlist = JSON.parse(window.localStorage.getItem("wishlist")) || [];
@@ -43,11 +44,30 @@ export function ProductCard({ id, name, price, imageUrl, stock}) {
     triggerWishlistUpdate();
   };
 
+  // const handleAddToCart = (e) => {
+  //   e.preventDefault();
+  //   const product = { id, name, price, imageUrl };
+  //   const cart = JSON.parse(window.localStorage.getItem("cart")) || [];
+
+  //   if (isInCart) {
+  //     const updatedCart = cart.filter((item) => item.id !== id);
+  //     window.localStorage.setItem("cart", JSON.stringify(updatedCart));
+  //   } else {
+  //     cart.push(product);
+  //     window.localStorage.setItem("cart", JSON.stringify(cart));
+  //   }
+
+  //   setIsInCart(!isInCart);
+  //   loadStorageData(); // Update the state based on the changes in localStorage
+  //   triggerCartUpdate();
+  // };
+
+
   const handleAddToCart = (e) => {
     e.preventDefault();
     const product = { id, name, price, imageUrl };
     const cart = JSON.parse(window.localStorage.getItem("cart")) || [];
-
+  
     if (isInCart) {
       const updatedCart = cart.filter((item) => item.id !== id);
       window.localStorage.setItem("cart", JSON.stringify(updatedCart));
@@ -55,11 +75,12 @@ export function ProductCard({ id, name, price, imageUrl, stock}) {
       cart.push(product);
       window.localStorage.setItem("cart", JSON.stringify(cart));
     }
-
+  
     setIsInCart(!isInCart);
-    loadStorageData(); // Update the state based on the changes in localStorage
+    loadStorageData(); 
     triggerCartUpdate();
   };
+  
 
   return (
     <Link href={`/product/${id}`} passHref>

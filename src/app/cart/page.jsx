@@ -10,16 +10,6 @@ function CartPage() {
   const [cartItems, setCartItems] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // useEffect(() => {
-  //   const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
-  //   const validCart = storedCart.map((item)=> ({
-  //     ...item,
-  //     quantity: item.quantity || 1,
-  //     price: item.price || 0,
-  //   }))
-  //   setCartItems(storedCart);
-  // }, []);
-
   useEffect(() => {
     const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
     const validCart = storedCart.map((item) => ({
@@ -46,18 +36,6 @@ function CartPage() {
     0
   );
   
-
-  // const updateQuantity = (id, newQuantity) => {
-  //   if (newQuantity < 1|| isNaN(newQuantity)) return;
-
-  //   const updatedCart = cartItems.map((item) =>
-  //     item.id === id ? { ...item, quantity: Number(newQuantity) } : item
-  //   );
-
-  //   setCartItems(updatedCart);
-  //   localStorage.setItem("cart", JSON.stringify(updatedCart));
-  // };
-
   const removeItem = (id) => {
     const updatedCart = cartItems.filter((item) => item.id !== id);
     setCartItems(updatedCart);
