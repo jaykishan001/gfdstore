@@ -1,7 +1,7 @@
 "use server";
 
 import dbConnect from "@/app/lib/dbConnect";
-import signIn from "@/auth";
+import { signIn } from "@/auth";
 
 export const loginhandler = async (email, password) => {
   await dbConnect();

@@ -1,4 +1,4 @@
-import auth from "@/auth";
+import { auth } from "@/auth";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import { getServerSession } from "next-auth";

@@ -1,13 +1,14 @@
 "use client";
-import React, { useState } from "react";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@radix-ui/react-popover";
-import { Button } from "./ui/button";
 import { User2Icon } from "lucide-react";
+import { signOut } from "next-auth/react"; // Import signOut from NextAuth
 import Link from "next/link";
+import { useState } from "react";
+import { Button } from "./ui/button";
 
 const UserProfile = () => {
   const User = { name: "John Doe", email: "johndoe@example.com" };
@@ -15,6 +16,15 @@ const UserProfile = () => {
 
   const handleNavigation = (path) => {
     setOpen(false);
+  };
+
+  const handleLogout = async () => {
+    // Calling NextAuth's signOut function
+    await signOut({
+      redirect: true, // This will handle redirection automatically after logout
+      callbackUrl: "/login", // Redirect to the login page after logout
+    });
+    setOpen(false); // Close the Popover on logout
   };
 
   return (
@@ -47,9 +57,7 @@ const UserProfile = () => {
             <Button
               variant="destructive"
               className="w-full text-sm"
-              onClick={() => {
-                setOpen(false);
-              }}
+              onClick={handleLogout} // Call handleLogout on click
             >
               Logout
             </Button>

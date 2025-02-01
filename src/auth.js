@@ -1,34 +1,34 @@
-import NextAuth from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
+import NextAuth, { CredentialsSignin } from "next-auth";
+import credentialProvider from "next-auth/providers/credentials";
 import User from "./models/userModel.js";
-
-export default NextAuth({
+export const { auth, handlers, signIn, signOut } = NextAuth({
   providers: [
-    CredentialsProvider({
+    credentialProvider({
       name: "Credentials",
       credentials: {
-        email: { label: "Email", type: "email" },
+        email: { label: "email", type: "email" },
         password: { label: "Password", type: "password" },
       },
-      authorize: async (credentials) => {
-        const { email, password } = credentials;
+      authorize: async (Credentials) => {
+        const email = Credentials.email;
+        const password = Credentials.password;
 
         if (!email || !password)
-          throw new Error("Please provide email and password");
+          throw new CredentialsSignin("Please provide email and password");
 
         const user = await User.findOne({ email });
 
-        if (!user) throw new Error("Invalid email or password");
+        if (!user) throw new CredentialsSignin("Invalid email or password");
 
         const isMatch = user.password === password;
 
-        if (!isMatch) throw new Error("Invalid password");
+        if (!isMatch) throw new CredentialsSignin("Invalid password");
 
         return { name: user.name, email: user.email, id: user.id };
       },
     }),
   ],
   pages: {
-    signIn: "/login", // your custom login page
+    signIn: "/login",
   },
 });

@@ -1,15 +1,20 @@
+import { auth } from "@/auth";
+import { getServerSession } from "next-auth";
+import Link from "next/link";
 import CartIcon from "./CartIcon";
 import Container from "./Container";
 import Logo from "./Logo";
 import MobileMenu from "./MobileMenu";
 import SearchBar from "./SearchBar";
-import { SignInButton } from "./SignInButton";
+import { Button } from "./ui/button";
 import UserProfile from "./UserProfile";
 import WishList from "./WishList";
 
-const Header = () => {
+const Header = async () => {
   // Check if user exists
-  const User = null;
+
+  const session = await getServerSession(auth);
+  const User = session?.user;
   return (
     <header className="fixed  top-0 left-0 w-full z-50 bg-white shadow-md border-b border-gray-300 py-4">
       <Container className="flex items-center justify-between gap-5 px-4 md:px-6">
@@ -29,11 +34,15 @@ const Header = () => {
           <CartIcon />
           <WishList />
           {!User ? (
-            <SignInButton>
-              <button className="px-4 py-2 text-sm font-semibold text-white bg-orange-500 rounded-lg hover:bg-orange-600 transition">
-                Login
-              </button>
-            </SignInButton>
+            <Link href="/login">
+              {" "}
+              <Button
+                variant="outline"
+                className="bg-yellow-400 hover:bg-yellow-500"
+              >
+                Sign In
+              </Button>
+            </Link>
           ) : (
             <UserProfile />
           )}
