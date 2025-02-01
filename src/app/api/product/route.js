@@ -1,6 +1,6 @@
-import dbConnect from "@app/lib/dbConnect";
-import Category from "@models/categoryModel";
-import Product from "@models/productModel";
+import dbConnect from "@/app/lib/dbConnect";
+import Category from "@/models/categoryModel";
+import Product from "@/models/productModel";
 import { uploadMultipleImages } from "../../lib/imageuploader";
 
 import { NextResponse } from "next/server";
