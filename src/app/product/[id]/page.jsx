@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
@@ -7,17 +7,35 @@ import { ChevronRight, Minus, Plus, ShoppingCart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { triggerCartUpdate } from "@/components/CartIcon"
+import axios from "axios"
 
 
 //make an api call to fetch all the product of smame categie and add it to product state for suggestions
 
 export default function ProductPage({ params }) {
+  const [products, setProducts]= useState([]);
   const product = products.find((p) => p.id === params.id);
   const [quantity, setQuantity] = useState(1)
   const [cartItems, setCartItems] = useState([]);
-  if (!product) {
+  
+  useEffect(()=>{
+    const fetchProducts = async()=> {
+      try {
+        const response = await axios.get('http:/localhost:3000/api/products');
+        setProducts(response.data.products);
+
+      } catch (error) {
+        setError('Failed to fetch products');
+      }
+      finally {
+        setLoading(false);
+      }
+    }
+  })
+
+   if (!product) {
     notFound()
-  }
+   }
 
 
   const handleCart = ()=>{
