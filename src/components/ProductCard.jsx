@@ -6,7 +6,7 @@ import { Heart } from "lucide-react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
-export function ProductCard({ id, name, price, imageUrl }) {
+export function ProductCard({ id, name, price, imageUrl, stock}) {
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [isInCart, setIsInCart] = useState(false);
 
@@ -25,7 +25,7 @@ export function ProductCard({ id, name, price, imageUrl }) {
 
   const handleWishlistClick = (e) => {
     e.preventDefault();
-    const product = { id, name, price, imageUrl };
+    const product = { id, name, price, imageUrl, stock};
     const wishlist = JSON.parse(window.localStorage.getItem("wishlist")) || [];
 
     if (isInWishlist) {
