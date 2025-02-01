@@ -1,5 +1,5 @@
-import dbConnect from "@app/lib/dbConnect";
-import Category from "@models/categoryModel";
+import dbConnect from "../../lib/dbConnect.js";
+import Category from "../../../models/categoryModel.js";
 import { NextResponse } from "next/server";
 
 export async function GET(req) {

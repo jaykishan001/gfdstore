@@ -1,5 +1,5 @@
-import dbConnect from "@app/lib/dbConnect";
-import Coupon from "@models/couponModel";
+import dbConnect from "../../lib/dbConnect.js";
+import Coupon from "../../../models/couponModel.js"
 import { NextResponse } from "next/server";
 
 export async function POST(req) {
