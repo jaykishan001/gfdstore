@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { triggerWishlistUpdate } from "./WishList";
 import { triggerCartUpdate } from "./CartIcon";
 
-export function ProductCard({ id, name, price, images, stock, sizeOptions }) {
+export function ProductCard({ _id, name, price, images, stock, sizeOptions }) {
+  console.log("productCard", {_id, name, price, stock, sizeOptions});
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [isInCart, setIsInCart] = useState(false);
   const imageUrl = images[0];
@@ -18,17 +19,17 @@ export function ProductCard({ id, name, price, images, stock, sizeOptions }) {
   const loadStorageData = () => {
     const wishlist = JSON.parse(window.localStorage.getItem("wishlist")) || [];
     const cart = JSON.parse(window.localStorage.getItem("cart")) || [];
-    setIsInWishlist(wishlist.some((item) => item.id === id));
-    setIsInCart(cart.some((item) => item.id === id));
+    setIsInWishlist(wishlist.some((item) => item._id === _id));
+    setIsInCart(cart.some((item) => item._id === _id));
   };
 
   useEffect(() => {
     loadStorageData();
-  }, [id]);
+  }, [_id]);
 
   const handleWishlistClick = (e) => {
     e.preventDefault();
-    const product = { id, name, price, imageUrl, stock };
+    const product = { _id, name, price, imageUrl, stock };
     const wishlist = JSON.parse(window.localStorage.getItem("wishlist")) || [];
 
     if (isInWishlist) {
@@ -46,11 +47,11 @@ export function ProductCard({ id, name, price, images, stock, sizeOptions }) {
 
   const handleAddToCart = (e) => {
     e.preventDefault();
-    const product = { id, name, price, imageUrl };
+    const product = { _id, name, price, imageUrl };
     const cart = JSON.parse(window.localStorage.getItem("cart")) || [];
 
     if (isInCart) {
-      const updatedCart = cart.filter((item) => item.id !== id);
+      const updatedCart = cart.filter((item) => item._id !== _id);
       window.localStorage.setItem("cart", JSON.stringify(updatedCart));
     } else {
       cart.push(product);
@@ -63,7 +64,7 @@ export function ProductCard({ id, name, price, images, stock, sizeOptions }) {
   };
 
   return (
-    <Link href={`/product/${id}`} passHref>
+    <Link href={`/product/${_id}`} passHref>
       <Card className="w-full max-w-xs mx-auto cursor-pointer hover:shadow-xl transition-shadow duration-300 rounded-lg overflow-hidden bg-white border border-gray-200">
         <CardContent className="p-4">
           <div className="relative w-full h-48 overflow-hidden group rounded-lg shadow-md">
