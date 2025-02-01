@@ -1,8 +1,16 @@
-"use client"
-import Link from "next/link"
-import { Facebook, Twitter, Instagram, Linkedin, Mail, Phone, MapPin } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
+"use client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Facebook,
+  Instagram,
+  Linkedin,
+  Mail,
+  MapPin,
+  Phone,
+  Twitter,
+} from "lucide-react";
+import Link from "next/link";
 
 const Footer = () => {
   return (
@@ -11,8 +19,11 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Company Info */}
           <div>
-            <h2 className="text-2xl font-bold mb-4">GFD STORE</h2>
-            <p className="mb-4">We are dedicated to providing the best products and services to our customers.</p>
+            <h2 className="text-2xl font-bold mb-4">MYOWNSTORE</h2>
+            <p className="mb-4">
+              We are dedicated to providing the best products and services to
+              our customers.
+            </p>
             <div className="flex space-x-4">
               <Link href="#" className="hover:text-blue-400">
                 <Facebook size={24} />
@@ -62,7 +73,10 @@ const Footer = () => {
             <ul className="space-y-2">
               <li className="flex items-center">
                 <Mail size={20} className="mr-2" />
-                <Link href="mailto:info@example.com" className="hover:text-blue-400">
+                <Link
+                  href="mailto:info@example.com"
+                  className="hover:text-blue-400"
+                >
                   info@example.com
                 </Link>
               </li>
@@ -82,9 +96,18 @@ const Footer = () => {
           {/* Newsletter Signup */}
           <div>
             <h2 className="text-2xl font-bold mb-4">Newsletter</h2>
-            <p className="mb-4">Stay updated with our latest news and offers.</p>
-            <form onSubmit={(e) => e.preventDefault()} className="flex flex-col space-y-2">
-              <Input type="email" placeholder="Enter your email" className="bg-gray-800 text-white border-gray-700" />
+            <p className="mb-4">
+              Stay updated with our latest news and offers.
+            </p>
+            <form
+              onSubmit={(e) => e.preventDefault()}
+              className="flex flex-col space-y-2"
+            >
+              <Input
+                type="email"
+                placeholder="Enter your email"
+                className="bg-gray-800 text-white border-gray-700"
+              />
               <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
                 Subscribe
               </Button>
@@ -94,12 +117,14 @@ const Footer = () => {
 
         {/* Copyright */}
         <div className="mt-8 pt-8 border-t border-gray-800 text-center">
-          <p>&copy; {new Date().getFullYear()} Your Company Name. All rights reserved.</p>
+          <p>
+            &copy; {new Date().getFullYear()} Your Company Name. All rights
+            reserved.
+          </p>
         </div>
       </div>
     </footer>
-  )
-}
+  );
+};
 
-export default Footer
-
+export default Footer;
