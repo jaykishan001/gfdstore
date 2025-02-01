@@ -13,7 +13,7 @@ export function ProductCard({ id, name, price, images, stock, sizeOptions }) {
   const [isInCart, setIsInCart] = useState(false);
   const imageUrl = images[0];
 
-  const isLoggedIn = false; 
+  const isLoggedIn = false;
 
   const loadStorageData = () => {
     const wishlist = JSON.parse(window.localStorage.getItem("wishlist")) || [];
@@ -28,7 +28,7 @@ export function ProductCard({ id, name, price, images, stock, sizeOptions }) {
 
   const handleWishlistClick = (e) => {
     e.preventDefault();
-    const product = { id, name, price, imageUrl, stock};
+    const product = { id, name, price, imageUrl, stock };
     const wishlist = JSON.parse(window.localStorage.getItem("wishlist")) || [];
 
     if (isInWishlist) {
@@ -40,34 +40,15 @@ export function ProductCard({ id, name, price, images, stock, sizeOptions }) {
     }
 
     setIsInWishlist(!isInWishlist);
-    loadStorageData(); 
+    loadStorageData();
     triggerWishlistUpdate();
   };
-
-  // const handleAddToCart = (e) => {
-  //   e.preventDefault();
-  //   const product = { id, name, price, imageUrl };
-  //   const cart = JSON.parse(window.localStorage.getItem("cart")) || [];
-
-  //   if (isInCart) {
-  //     const updatedCart = cart.filter((item) => item.id !== id);
-  //     window.localStorage.setItem("cart", JSON.stringify(updatedCart));
-  //   } else {
-  //     cart.push(product);
-  //     window.localStorage.setItem("cart", JSON.stringify(cart));
-  //   }
-
-  //   setIsInCart(!isInCart);
-  //   loadStorageData(); // Update the state based on the changes in localStorage
-  //   triggerCartUpdate();
-  // };
-
 
   const handleAddToCart = (e) => {
     e.preventDefault();
     const product = { id, name, price, imageUrl };
     const cart = JSON.parse(window.localStorage.getItem("cart")) || [];
-  
+
     if (isInCart) {
       const updatedCart = cart.filter((item) => item.id !== id);
       window.localStorage.setItem("cart", JSON.stringify(updatedCart));
@@ -75,29 +56,28 @@ export function ProductCard({ id, name, price, images, stock, sizeOptions }) {
       cart.push(product);
       window.localStorage.setItem("cart", JSON.stringify(cart));
     }
-  
+
     setIsInCart(!isInCart);
-    loadStorageData(); 
+    loadStorageData();
     triggerCartUpdate();
   };
-  
 
   return (
     <Link href={`/product/${id}`} passHref>
-      <Card className="w-full max-w-xs mx-auto cursor-pointer hover:shadow-lg transition-shadow duration-300 rounded-lg overflow-hidden">
-        <CardContent className="p-3">
-          <div className="relative w-full h-40 overflow-hidden group rounded-md">
+      <Card className="w-full max-w-xs mx-auto cursor-pointer hover:shadow-xl transition-shadow duration-300 rounded-lg overflow-hidden bg-white border border-gray-200">
+        <CardContent className="p-4">
+          <div className="relative w-full h-48 overflow-hidden group rounded-lg shadow-md">
             <Image
               src={imageUrl || "/placeholder.svg"}
               alt={name}
               layout="fill"
               objectFit="cover"
-              className="rounded-md transform transition-transform duration-300 group-hover:scale-105"
+              className="rounded-lg transform transition-transform duration-300 group-hover:scale-110"
             />
 
             <button
               onClick={handleWishlistClick}
-              className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md hover:bg-gray-100 transition duration-200"
+              className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-lg hover:bg-gray-100 transition duration-200"
             >
               <Heart
                 className={`h-5 w-5 ${
@@ -106,17 +86,27 @@ export function ProductCard({ id, name, price, images, stock, sizeOptions }) {
               />
             </button>
           </div>
-          <h3 className="text-base font-semibold mt-3 truncate">{name}</h3>
+
+          <h3 className="text-lg font-semibold mt-3 truncate text-gray-800">{name}</h3>
           <p className="text-gray-600 text-sm">${price?.toFixed(2)}</p>
+          <p className="text-gray-500 text-xs mt-1">{stock > 0 ? `${stock} in stock` : "Out of stock"}</p>
         </CardContent>
-        <CardFooter className="p-3">
+
+        <CardFooter className="p-4 flex flex-col space-y-2">
           <Button
             onClick={handleAddToCart}
-            className={`w-full py-1 text-sm hover:bg-primary/90 transition duration-200 ${
-              isInCart ? "bg-gray-700" : ""
+            className={`w-full py-2 text-sm font-medium hover:bg-primary/90 transition duration-200 ${
+              isInCart ? "bg-gray-700 text-white" : "bg-primary text-white"
             }`}
           >
             {isInCart ? "Remove from Cart" : "Add to Cart"}
+          </Button>
+
+          <Button
+            onClick={handleWishlistClick}
+            className="w-full py-2 text-sm font-medium bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-100 transition duration-200"
+          >
+            {isInWishlist ? "In Wishlist" : "Add to Wishlist"}
           </Button>
         </CardFooter>
       </Card>
