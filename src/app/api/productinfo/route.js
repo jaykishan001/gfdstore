@@ -1,5 +1,5 @@
-import dbConnect from "../../lib/dbConnect.js";
 import Product from "../../../models/productModel.js";
+import dbConnect from "../../lib/dbConnect.js";
 
 import { NextResponse } from "next/server";
 
