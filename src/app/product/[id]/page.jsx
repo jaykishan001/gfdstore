@@ -2,6 +2,7 @@
 
 import { triggerCartUpdate } from "@/components/CartIcon";
 import { Button } from "@/components/ui/button";
+
 import axios from "axios";
 import { ChevronRight, Minus, Plus, ShoppingCart } from "lucide-react";
 import Image from "next/image";
@@ -138,7 +139,7 @@ export default function ProductPage({ params: paramsPromise }) {
               variant="outline"
               size="icon"
               onClick={() => setQuantity(quantity + 1)}
-              disabled={!product.inStock}
+              disabled={!product.stock}
             >
               <Plus className="h-4 w-4" />
             </Button>
@@ -146,7 +147,7 @@ export default function ProductPage({ params: paramsPromise }) {
           <Button
             onClick={handleCart}
             className="w-full"
-            disabled={!product.stock}
+            disabled={!product.inStock}
           >
             <ShoppingCart className="mr-2 h-4 w-4" /> Add to Cart
           </Button>
