@@ -5,6 +5,8 @@ import Image from "next/image";
 import { Heart } from "lucide-react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { triggerWishlistUpdate } from "./WishList";
+import { triggerCartUpdate } from "./CartIcon";
 
 export function ProductCard({ id, name, price, imageUrl, stock}) {
   const [isInWishlist, setIsInWishlist] = useState(false);
@@ -38,6 +40,7 @@ export function ProductCard({ id, name, price, imageUrl, stock}) {
 
     setIsInWishlist(!isInWishlist);
     loadStorageData(); 
+    triggerWishlistUpdate();
   };
 
   const handleAddToCart = (e) => {
@@ -55,6 +58,7 @@ export function ProductCard({ id, name, price, imageUrl, stock}) {
 
     setIsInCart(!isInCart);
     loadStorageData(); // Update the state based on the changes in localStorage
+    triggerCartUpdate();
   };
 
   return (

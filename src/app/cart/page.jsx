@@ -1,59 +1,79 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Minus, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
+import { triggerCartUpdate } from "@/components/CartIcon";
 
 function CartPage() {
-  const [cartItems, setCartItems] = useState([
-    {
-      id: 1,
-      name: "Product 1",
-      price: 19.99,
-      quantity: 1,
-      image:
-        "https://images.unsplash.com/photo-1735078255510-a5455dfe9f22?q=80&w=2835&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
-      id: 2,
-      name: "Product 2",
-      price: 29.99,
-      quantity: 2,
-      image:
-        "https://images.unsplash.com/photo-1735078255510-a5455dfe9f22?q=80&w=2835&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-  ]);
+  const [cartItems, setCartItems] = useState([]);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
+  // useEffect(() => {
+  //   const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
+  //   const validCart = storedCart.map((item)=> ({
+  //     ...item,
+  //     quantity: item.quantity || 1,
+  //     price: item.price || 0,
+  //   }))
+  //   setCartItems(storedCart);
+  // }, []);
+
+  useEffect(() => {
+    const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
+    const validCart = storedCart.map((item) => ({
+      ...item,
+      quantity: Number(item.quantity) || 1,
+      price: Number(item.price) || 0,
+    }));
+    setCartItems(validCart);
+  }, []);
+  
   const updateQuantity = (id, newQuantity) => {
-    if (newQuantity >= 1) {
-      setCartItems(
-        cartItems.map((item) =>
-          item.id === id ? { ...item, quantity: newQuantity } : item
-        )
-      );
-    }
+    if (newQuantity < 1 || isNaN(newQuantity)) return;
+  
+    const updatedCart = cartItems.map((item) =>
+      item.id === id ? { ...item, quantity: Number(newQuantity) } : item
+    );
+  
+    setCartItems(updatedCart);
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
   };
-
-  const removeItem = (id) => {
-    setCartItems(cartItems.filter((item) => item.id !== id));
-  };
-
+  
   const total = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
+    (sum, item) => sum + Number(item.price) * Number(item.quantity),
     0
   );
+  
+
+  // const updateQuantity = (id, newQuantity) => {
+  //   if (newQuantity < 1|| isNaN(newQuantity)) return;
+
+  //   const updatedCart = cartItems.map((item) =>
+  //     item.id === id ? { ...item, quantity: Number(newQuantity) } : item
+  //   );
+
+  //   setCartItems(updatedCart);
+  //   localStorage.setItem("cart", JSON.stringify(updatedCart));
+  // };
+
+  const removeItem = (id) => {
+    const updatedCart = cartItems.filter((item) => item.id !== id);
+    setCartItems(updatedCart);
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+    triggerCartUpdate();
+  };
 
   const handleCheckout = (event) => {
     event.preventDefault();
     console.log("Checkout Data:", cartItems);
-    // Send cartItems to backend here (e.g., fetch API call)
   };
 
   return (
     <>
       {cartItems.length > 0 ? (
-        <div className="container mx-auto p-6 max-h-screen pt-24 h-[100vh]">
+        <div className="container mx-auto p-6 min-h-screen pt-24 h-[100vh]">
           <h1 className="text-3xl font-bold text-gray-800 mb-6">
             Your Shopping Cart
           </h1>
@@ -65,7 +85,7 @@ function CartPage() {
                   className="flex items-center space-x-6 bg-white p-6 rounded-lg shadow-lg"
                 >
                   <Image
-                    src={item.image || "/placeholder.svg"}
+                    src={item.imageUrl || "/placeholder.svg"}
                     alt={item.name}
                     width={120}
                     height={120}

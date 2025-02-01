@@ -3,6 +3,8 @@ import Container from "@/components/Container";
 import React, { useEffect, useState } from "react";
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { triggerWishlistUpdate } from "@/components/WishList";
+import { triggerCartUpdate } from "@/components/CartIcon";
 
 const WishListPage = () => {
   const [wishlist, setWishlist] = useState([]);
@@ -25,6 +27,7 @@ const WishListPage = () => {
     const updatedWishlist = wishlist.filter((item) => item.id !== id);
     window.localStorage.setItem("wishlist", JSON.stringify(updatedWishlist));
     setWishlist(updatedWishlist);
+    triggerWishlistUpdate();
   };
 
   const addToCart = (product) => {
@@ -38,6 +41,7 @@ const WishListPage = () => {
       const updatedCart = [...existingCart, product];
       window.localStorage.setItem("cart", JSON.stringify(updatedCart));
       setCart(updatedCart);
+      triggerCartUpdate();
     }
   };
 

@@ -6,66 +6,32 @@ import { notFound } from "next/navigation"
 import { ChevronRight, Minus, Plus, ShoppingCart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { triggerCartUpdate } from "@/components/CartIcon"
 
-const products = [
-  {
-    id: "1",
-    name: "Product 1",
-    price: 19.99,
-    imageUrl:
-      "https://images.unsplash.com/photo-1735078255510-a5455dfe9f22?q=80&w=2835&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    description: "This is a detailed description of Product 1. It's an amazing item that you'll love!",
-    category: "Electronics",
-    inStock: true,
-  },
-  {
-    id: "2",
-    name: "Product 2",
-    price: 29.99,
-    imageUrl:
-      "https://images.unsplash.com/photo-1735078255510-a5455dfe9f22?q=80&w=2835&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    description: "Product 2 is a high-quality item perfect for your needs. Don't miss out!",
-    category: "Home & Living",
-    inStock: true,
-  },
-  {
-    id: "3",
-    name: "Product 3",
-    price: 39.99,
-    imageUrl:
-      "https://images.unsplash.com/photo-1735078255510-a5455dfe9f22?q=80&w=2835&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    description: "Discover the amazing features of Product 3. It's a game-changer in its category!",
-    category: "Fashion",
-    inStock: false,
-  },
-  {
-    id: "4",
-    name: "Product 4",
-    price: 49.99,
-    imageUrl:
-      "https://images.unsplash.com/photo-1735078255510-a5455dfe9f22?q=80&w=2835&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    description: "Product 4 is the ultimate solution for your everyday needs. Try it today!",
-    category: "Electronics",
-    inStock: true,
-  },
-  {
-    id: "5",
-    name: "Product 5",
-    price: 59.99,
-    imageUrl:
-      "https://images.unsplash.com/photo-1735078255510-a5455dfe9f22?q=80&w=2835&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    description: "Experience luxury with Product 5. It's the perfect addition to your collection!",
-    category: "Fashion",
-    inStock: true,
-  },
-]
+
+//make an api call to fetch all the product of smame categie and add it to product state for suggestions
 
 export default function ProductPage({ params }) {
-  const product = products.find((p) => p.id === params.id)
+  const product = products.find((p) => p.id === params.id);
   const [quantity, setQuantity] = useState(1)
+  const [cartItems, setCartItems] = useState([]);
   if (!product) {
     notFound()
   }
+
+
+  const handleCart = ()=>{
+     const existingCart = JSON.parse(window.localStorage.getItem("cart")) || [];
+     const isInCart = existingCart.some((item)=> item.id === product.id);
+
+     if(!isInCart){
+      const updateCart = [...existingCart, product];
+      window.localStorage.setItem("cart", JSON.stringify(updateCart));
+      setCartItems(updateCart);
+      triggerCartUpdate();
+     }
+  }
+
 
   const relatedProducts = products.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 10)
 
@@ -138,7 +104,7 @@ export default function ProductPage({ params }) {
               <Plus className="h-4 w-4" />
             </Button>
           </div>
-          <Button className="w-full" disabled={!product.inStock}>
+          <Button onClick={handleCart} className="w-full" disabled={!product.inStock}>
             <ShoppingCart className="mr-2 h-4 w-4" /> Add to Cart
           </Button>
         </div>

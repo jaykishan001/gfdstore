@@ -18,7 +18,7 @@ const Header = () => {
         <div className="flex items-center gap-3">
           <MobileMenu />
           <Logo className="text-lg font-bold tracking-tight">
-            GFD <span className="text-orange-500">Store</span>
+            MYOWN<span className="text-orange-500">STORE</span>
           </Logo>
         </div>
 
