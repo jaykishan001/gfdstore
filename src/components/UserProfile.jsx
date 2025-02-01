@@ -42,7 +42,7 @@ const UserProfile = () => {
           </div>
 
           <div className="mt-4 space-y-3">
-            <Link href="/user/profile">
+            <Link href="/profile">
               <Button variant="outline" className="w-full text-sm">
                 My Profile
               </Button>
