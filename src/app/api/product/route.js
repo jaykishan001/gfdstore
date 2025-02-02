@@ -16,6 +16,7 @@ export async function POST(req) {
     const images = formData.getAll("images");
 
     if (!name || !category || !price || !stock) {
+      
       return NextResponse.json(
         { message: "All fields are required" },
         { status: 400 }
@@ -40,6 +41,7 @@ export async function POST(req) {
       $push: { products: { _id: product._id } },
     });
 
+    console.log("product is created");
     return NextResponse.json(
       { message: "Product created", product },
       { status: 201 }

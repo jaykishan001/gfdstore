@@ -19,6 +19,7 @@ const ProductPage = () => {
   const [priceRange, setPriceRange] = useState([0, 1000]); // Default price range
   const [selectedSizes, setSelectedSizes] = useState([]);
 
+
   // Fetch products with filters
   useEffect(() => {
     const fetchProducts = async () => {
