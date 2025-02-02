@@ -11,7 +11,6 @@ import { removeproduct, updateQuantity } from "../../../actions/cart";
 
 function CartPage() {
   const [cartItems, setCartItems] = useState([]);
-  const { data: session, status } = useSession();
 
   useEffect(() => {
     if (status === "loading") return;

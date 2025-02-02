@@ -1,6 +1,5 @@
 "use client"
-
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -8,9 +7,26 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Package, MapPin, CreditCard, LogOut, User } from "lucide-react"
+import { auth } from "@/auth"
 
 export function ProfileContent() {
   const [activeTab, setActiveTab] = useState("personal")
+  const [session, setSession] = useState(null)
+
+  useEffect(() => {
+    const fetchSession = async () => {
+      const sessionData = await getServerSession(auth)
+      setSession(sessionData)
+    }
+
+    fetchSession()
+  }, [])
+
+  console.log(session);
+
+  if (!session) {
+    return <div>Loading...</div>  // Show loading state while session is being fetched
+  }
 
   const tabContent = {
     personal: (

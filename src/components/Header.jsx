@@ -25,7 +25,7 @@ const Header = async () => {
           </Logo>
         </div>
 
-        <div className="relative md:flex flex-1 justify-center">
+        <div className="relative md:flex flex-1 justify-center z-30">
           <SearchBar />
         </div>
 
