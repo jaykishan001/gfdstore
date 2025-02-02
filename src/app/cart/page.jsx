@@ -5,10 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
 import { triggerCartUpdate } from "@/components/CartIcon";
+import Link from "next/link";
 
 function CartPage() {
   const [cartItems, setCartItems] = useState([]);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -19,29 +19,48 @@ function CartPage() {
     }));
     setCartItems(validCart);
   }, []);
-  
-  const updateQuantity = (id, newQuantity) => {
-    if (newQuantity < 1 || isNaN(newQuantity)) return;
-  
-    const updatedCart = cartItems.map((item) =>
-      item.id === id ? { ...item, quantity: Number(newQuantity) } : item
-    );
-  
+
+  const updateCartStorage = (updatedCart) => {
     setCartItems(updatedCart);
     localStorage.setItem("cart", JSON.stringify(updatedCart));
+    triggerCartUpdate();
+  };
+
+
+  const updateQuantity = (item, newQuantity) => {
+    if (newQuantity < 1 || isNaN(newQuantity)) return;
+  
+    const updatedCart = cartItems.map((cartItem) => {
+      if (item.uniqueKey) {
+        return cartItem.uniqueKey === item.uniqueKey
+          ? { ...cartItem, quantity: Number(newQuantity) }
+          : cartItem;
+      } else {
+        return cartItem._id === item._id
+          ? { ...cartItem, quantity: Number(newQuantity) }
+          : cartItem;
+      }
+    });
+    updateCartStorage(updatedCart);
+  };
+  
+
+  const removeItem = (item) => {
+    let updatedCart;
+  
+    if (item.uniqueKey) {
+      updatedCart = cartItems.filter((cartItem) => cartItem.uniqueKey !== item.uniqueKey);
+    } else {
+      updatedCart = cartItems.filter((cartItem) => cartItem._id !== item._id);
+    }
+  
+    updateCartStorage(updatedCart);
   };
   
   const total = cartItems.reduce(
     (sum, item) => sum + Number(item.price) * Number(item.quantity),
     0
   );
-  
-  const removeItem = (id) => {
-    const updatedCart = cartItems.filter((item) => item.id !== id);
-    setCartItems(updatedCart);
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
-    triggerCartUpdate();
-  };
 
   const handleCheckout = (event) => {
     event.preventDefault();
@@ -51,7 +70,7 @@ function CartPage() {
   return (
     <>
       {cartItems.length > 0 ? (
-        <div className="container mx-auto p-6 min-h-screen pt-24 h-[100vh]">
+        <div className="container mx-auto p-6 min-h-screen pt-24">
           <h1 className="text-3xl font-bold text-gray-800 mb-6">
             Your Shopping Cart
           </h1>
@@ -59,8 +78,8 @@ function CartPage() {
             <div className="md:col-span-2 space-y-6">
               {cartItems.map((item) => (
                 <div
-                  key={item.id}
-                  className="flex items-center space-x-6 bg-white p-6 rounded-lg shadow-lg"
+                  key={item.uniqueKey ? item.uniqueKey : item._id}
+                  className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6 bg-white p-6 rounded-lg shadow-lg w-full"
                 >
                   <Image
                     src={item.imageUrl || "/placeholder.svg"}
@@ -69,18 +88,24 @@ function CartPage() {
                     height={120}
                     className="w-24 h-24 object-cover rounded-lg border"
                   />
-                  <div className="flex-grow">
+                  <div className="flex flex-col flex-grow text-center md:text-left">
                     <h3 className="text-lg font-semibold text-gray-700">
                       {item.name}
                     </h3>
-                    <p className="text-gray-500">${item.price.toFixed(2)}</p>
+                    {item.description && (
+                      <p className="text-gray-500 text-sm">{item.description}</p>
+                    )}
+                    {item.size && (
+                      <p className="text-gray-500 text-sm">Size: {item.size}</p>
+                    )}
+                    <p className="text-gray-500 mt-2">${item.price.toFixed(2)}</p>
                   </div>
                   <div className="flex items-center space-x-3">
                     <Button
                       variant="outline"
                       size="icon"
                       className="bg-gray-100"
-                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                      onClick={() => updateQuantity(item, item.quantity - 1)}
                     >
                       <Minus className="h-4 w-4 text-gray-600" />
                     </Button>
@@ -91,7 +116,7 @@ function CartPage() {
                       variant="outline"
                       size="icon"
                       className="bg-gray-100"
-                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                      onClick={() => updateQuantity(item, item.quantity + 1)}
                     >
                       <Plus className="h-4 w-4 text-gray-600" />
                     </Button>
@@ -99,7 +124,7 @@ function CartPage() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => removeItem(item.id)}
+                    onClick={() => removeItem(item)}
                     className="text-red-500"
                   >
                     <X className="h-5 w-5" />
@@ -116,9 +141,9 @@ function CartPage() {
               </h2>
               <Separator className="my-4" />
               <div className="space-y-3">
-                {cartItems.map((item) => (
+                {cartItems.map((item, index) => (
                   <div
-                    key={item.id}
+                    key={item._id || index}
                     className="flex justify-between text-gray-700"
                   >
                     <span>
@@ -138,6 +163,7 @@ function CartPage() {
                 name="cartData"
                 value={JSON.stringify(cartItems)}
               />
+
               <Button
                 type="submit"
                 className="w-full mt-6 bg-orange-500 hover:bg-orange-600 text-white py-2 rounded-lg font-semibold shadow-md transition-all"
@@ -148,12 +174,14 @@ function CartPage() {
           </div>
         </div>
       ) : (
-        <div className="container flex flex-col items-center mx-auto p-6 max-h-screen pt-24 space-y-2 h-[100vh] justify-center">
-          <h1 className="text-4xl font-bold">Missing Cart items</h1>
+        <div className="container flex flex-col items-center mx-auto p-6 min-h-screen justify-center space-y-4">
+          <h1 className="text-4xl font-bold">Missing Cart Items</h1>
           <p className="text-2xl">Login to see the items you added</p>
+          <Link href="/login">
           <Button variant="outline" className="text-lg">
             Login
           </Button>
+          </Link>
         </div>
       )}
     </>

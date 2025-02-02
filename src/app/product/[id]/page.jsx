@@ -2,7 +2,6 @@
 
 import { triggerCartUpdate } from "@/components/CartIcon";
 import { Button } from "@/components/ui/button";
-
 import axios from "axios";
 import { ChevronRight, Minus, Plus, ShoppingCart } from "lucide-react";
 import Image from "next/image";
@@ -14,22 +13,19 @@ export default function ProductPage({ params: paramsPromise }) {
   const params = use(paramsPromise);
   const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
+  const [selectedSize, setSelectedSize] = useState("");
   const [cartItems, setCartItems] = useState([]);
-  const [relatedProducts, setRelatedProducts] = useState([]);
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await axios.get(
-          `/api/productinfo?productId=${params.id}`
-        );
+        const response = await axios.get(`/api/productinfo?productId=${params.id}`);
         setProduct(response.data.data);
       } catch (error) {
         console.error("Error fetching product:", error);
         notFound();
       }
     };
-
     fetchProduct();
   }, [params.id]);
 
@@ -52,103 +48,99 @@ export default function ProductPage({ params: paramsPromise }) {
   // }, [product]);
 
   if (!product) return null;
-  console.log(product);
+
+  // const handleCart = () => {
+  //   const existingCart = JSON.parse(window.localStorage.getItem("cart")) || [];
+  //   const cartItem = { ...product, quantity, size: selectedSize };
+
+  //   const updatedCart = [...existingCart.filter(item => item._id !== product._id || item.size !== selectedSize), cartItem];
+  //   window.localStorage.setItem("cart", JSON.stringify(updatedCart));
+  //   setCartItems(updatedCart);
+  //   triggerCartUpdate();
+  // };
 
   const handleCart = () => {
-    const existingCart = JSON.parse(window.localStorage.getItem("cart")) || [];
-    const isInCart = existingCart.some((item) => item._id === product._id);
-
-    if (!isInCart) {
-      const updatedCart = [...existingCart, product];
-      window.localStorage.setItem("cart", JSON.stringify(updatedCart));
-      setCartItems(updatedCart);
-      triggerCartUpdate();
+    if (!selectedSize) {
+      alert("Please select a size before adding to cart.");
+      return;
     }
+  
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const uniqueKey = `${product._id}-${selectedSize}`;
+  
+    const existingItemIndex = cart.findIndex((item) => item.uniqueKey === uniqueKey);
+  
+    if (existingItemIndex !== -1) {
+      cart[existingItemIndex].quantity += quantity;
+    } else {
+      cart.push({
+        uniqueKey,
+        _id: product._id,
+        name: product.name,
+        price: product.price,
+        size: selectedSize,
+        quantity,
+        image: product.images[0] || "/placeholder.svg",
+      });
+    }
+  
+    localStorage.setItem("cart", JSON.stringify(cart));
+    setCartItems(cart);
+    triggerCartUpdate();
   };
+  
 
   return (
-    <div className="container mx-auto py-8 px-4 mt-10">
-      <nav className="flex mb-8" aria-label="Breadcrumb">
-        <ol className="inline-flex items-center space-x-1 md:space-x-3">
-          <li className="inline-flex items-center">
-            <Link href="/" className="text-gray-700 hover:text-blue-600">
-              Home
-            </Link>
-          </li>
-          <li>
-            <div className="flex items-center">
-              <ChevronRight className="w-5 h-5 text-gray-400" />
-              <Link
-                href="/product"
-                className="ml-1 text-gray-700 hover:text-blue-600 md:ml-2"
-              >
-                Products
-              </Link>
-            </div>
-          </li>
-          <li aria-current="page">
-            <div className="flex items-center">
-              <ChevronRight className="w-5 h-5 text-gray-400" />
-              <span className="ml-1 text-gray-500 md:ml-2">{product.name}</span>
-            </div>
-          </li>
-        </ol>
+    <div className="container mx-auto py-8 px-4 mt-10 max-w-6xl">
+      <nav className="flex mb-6 text-sm">
+        <Link href="/" className="text-gray-700 hover:text-blue-600">Home</Link>
+        <ChevronRight className="w-5 h-5 text-gray-400 mx-2" />
+        <Link href="/product" className="text-gray-700 hover:text-blue-600">Products</Link>
+        <ChevronRight className="w-5 h-5 text-gray-400 mx-2" />
+        <span className="text-gray-500">{product.name}</span>
       </nav>
 
-      <div className="grid md:grid-cols-2 gap-8">
-        <div className="relative overflow-hidden rounded-lg">
-          <Image
-            src={product?.images?.[0] ?? "/placeholder.svg"}
-            alt={product?.name ?? "Product image"}
-            fill
-            priority // Ensures faster loading for key images
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 800px"
-            className="object-cover rounded-lg"
-          />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="relative rounded-lg overflow-hidden h-[400px]">
+          <Image src={product.images?.[0] ?? "/placeholder.svg"} alt={product.name} fill className="object-cover" />
         </div>
 
-        <div>
-          <h1 className="text-3xl font-bold mb-4">{product.name}</h1>
-          <p className="text-2xl font-semibold mb-4">
-            ${product.price.toFixed(2)}
-          </p>
-          <p className="mb-4">{product.description}</p>
-          {/* <div className="mb-4">
-            <span className="font-semibold">Category:</span> {product.category}
-          </div> */}
-          <div className="mb-4">
+        <div className="space-y-4">
+          <h1 className="text-2xl font-bold">{product.name}</h1>
+          <p className="text-xl font-semibold text-green-600">${product.price.toFixed(2)}</p>
+          <p className="text-gray-700">{product.description}</p>
+
+          <div className="flex items-center space-x-2">
             <span className="font-semibold">Availability:</span>
-            {product.stock ? (
-              <span className="text-green-600 ml-2">In Stock</span>
-            ) : (
-              <span className="text-red-600 ml-2">Out of Stock</span>
-            )}
+            <span className={product.stock > 0 ? "text-green-600" : "text-red-600"}>{product.stock > 0 ? "In Stock" : "Out of Stock"}</span>
           </div>
-          <div className="flex items-center mb-4">
-            <span className="font-semibold mr-4">Quantity:</span>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setQuantity(Math.max(1, quantity - 1))}
-              disabled={!product.inStock}
-            >
+
+          {product.sizeOptions?.length > 0 && (
+            <div className="flex space-x-2 items-center">
+              <span className="font-semibold">Size:</span>
+              {product.sizeOptions.map((size) => (
+                <Button
+                  key={size}
+                  variant={selectedSize === size ? "default" : "outline"}
+                  onClick={() => setSelectedSize(size)}
+                >
+                  {size}
+                </Button>
+              ))}
+            </div>
+          )}
+
+          <div className="flex items-center space-x-4">
+            <Button variant="outline" size="icon" onClick={() => setQuantity(Math.max(1, quantity - 1))}>
               <Minus className="h-4 w-4" />
             </Button>
-            <span className="mx-4 text-xl">{quantity}</span>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setQuantity(quantity + 1)}
-              disabled={!product.stock}
-            >
+            <span className="text-lg">{quantity}</span>
+            <Button variant="outline" size="icon" onClick={() => setQuantity(quantity + 1)}>
               <Plus className="h-4 w-4" />
             </Button>
           </div>
-          <Button
-            onClick={handleCart}
-            className="w-full"
-            disabled={!product.inStock}
-          >
+
+          <Button onClick={handleCart} className="w-full mt-4" disabled={!product.stock || !selectedSize}>
             <ShoppingCart className="mr-2 h-4 w-4" /> Add to Cart
           </Button>
         </div>

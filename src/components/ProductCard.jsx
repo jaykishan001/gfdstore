@@ -9,7 +9,6 @@ import { triggerWishlistUpdate } from "./WishList";
 import { triggerCartUpdate } from "./CartIcon";
 
 export function ProductCard({ _id, name, price, images, stock, sizeOptions }) {
-  console.log("productCard", {_id, name, price, stock, sizeOptions});
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [isInCart, setIsInCart] = useState(false);
   const imageUrl = images[0];
@@ -33,7 +32,7 @@ export function ProductCard({ _id, name, price, images, stock, sizeOptions }) {
     const wishlist = JSON.parse(window.localStorage.getItem("wishlist")) || [];
 
     if (isInWishlist) {
-      const updatedWishlist = wishlist.filter((item) => item.id !== id);
+      const updatedWishlist = wishlist.filter((item) => item._id !== _id);
       window.localStorage.setItem("wishlist", JSON.stringify(updatedWishlist));
     } else {
       wishlist.push(product);
