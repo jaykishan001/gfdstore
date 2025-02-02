@@ -59,11 +59,28 @@ export async function GET(req) {
     const url = new URL(req.url);
     const page = url.searchParams.get("page");
     const limit = url.searchParams.get("limit");
+    const categories = url.searchParams.get("categories");
+    const minPrice = Number(url.searchParams.get("minPrice")) || 0;
+    const maxPrice = Number(url.searchParams.get("maxPrice")) || Infinity;
+    const sizes = url.searchParams.get("sizes");
 
     const pageNum = Number(page?.trim()) || 1;
     const limitNum = Number(limit?.trim()) || 10;
 
+    let filter = {
+      price: { $gte: minPrice, $lte: maxPrice },
+    };
+
+    if (categories) {
+      filter.category = { $in: categories.split(",") };
+    }
+
+    if (sizes) {
+      filter.sizeOptions = { $in: sizes.split(",") };
+    }
+
     const articles = await Product.aggregate([
+      { $match: filter },
       {
         $facet: {
           metadata: [{ $count: "totalCount" }],

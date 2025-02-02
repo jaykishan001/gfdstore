@@ -22,20 +22,20 @@ const WishListPage = () => {
     }
   }, [isLoggedIn]);
 
-  const removeFromWishlist = (id) => {
-    console.log("Removed product with ID:", id);
-    const updatedWishlist = wishlist.filter((item) => item.id !== id);
+  const removeFromWishlist = (_id) => {
+    console.log("Removed product with ID:", _id);
+    const updatedWishlist = wishlist.filter((item) => item._id !== _id);
     window.localStorage.setItem("wishlist", JSON.stringify(updatedWishlist));
     setWishlist(updatedWishlist);
     triggerWishlistUpdate();
   };
 
   const addToCart = (product) => {
-    console.log("Added product with ID:", product.id, "to cart");
+    console.log("Added product with ID:", product._id, "to cart");
 
     const existingCart = JSON.parse(window.localStorage.getItem("cart")) || [];
 
-    const isInCart = existingCart.some((item) => item.id === product.id);
+    const isInCart = existingCart.some((item) => item._id === product?._id);
 
     if (!isInCart) {
       const updatedCart = [...existingCart, product];
@@ -60,16 +60,16 @@ const WishListPage = () => {
             </div>
           ) : (
             wishlist.map((product) => {
-              const isInCart = cart.some((item) => item.id === product.id);
+              const isInCart = cart.some((item) => item._id === product._id);
 
               return (
                 <div
-                  key={product.id}
+                  key={product._id}
                   className="flex flex-col sm:flex-row items-center justify-between gap-4 border-b p-4 last:border-b-0"
                 >
                   <div className="flex items-center gap-4 w-full sm:w-auto">
                     <button
-                      onClick={() => removeFromWishlist(product.id)}
+                      onClick={() => removeFromWishlist(product._id)}
                       className="hidden sm:block text-red-500 hover:text-red-700"
                     >
                       <Trash2 size={20} />
@@ -95,9 +95,8 @@ const WishListPage = () => {
                     {product.stock ? "In Stock" : "Out of Stock"}
                   </p>
 
-                  {/* Right Section: Add to Cart and Remove Button (visible on small screens) */}
                   <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
-                    {/* Add to Cart Button */}
+                
                     <Button
                       onClick={() => addToCart(product)}
                       disabled={!product.stock || isInCart}
@@ -110,9 +109,8 @@ const WishListPage = () => {
                       {isInCart ? "Product Added" : "Add to Cart"}
                     </Button>
 
-                    {/* Remove Button (visible on small screens) */}
                     <Button
-                      onClick={() => removeFromWishlist(product.id)}
+                      onClick={() => removeFromWishlist(product._id)}
                       variant="outline"
                       className="w-full sm:hidden px-4 py-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-md"
                     >
