@@ -1,5 +1,6 @@
 import dbConnect from "@/app/lib/dbConnect";
 import "@/models/address.model";
+import "@/models/orderModel";
 import User from "@/models/userModel";
 import { NextResponse } from "next/server";
 
