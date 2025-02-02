@@ -64,6 +64,7 @@ const SearchBar = () => {
       {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
 
       {/* Suggestions Container */}
+      
       <div className="relative">
         {suggestions.length > 0 && (
           <ul className=" left-0 w-full bg-white border border-gray-200 shadow-lg mt-1 rounded-md max-h-48 overflow-auto z-50">

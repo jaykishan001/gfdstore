@@ -9,7 +9,7 @@ import Link from "next/link";
 
 function CartPage() {
   const [cartItems, setCartItems] = useState([]);
-
+  
   useEffect(() => {
     const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
     const validCart = storedCart.map((item) => ({
