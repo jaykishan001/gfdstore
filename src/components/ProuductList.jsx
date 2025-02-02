@@ -28,6 +28,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { deleteProduct } from "../../actions/product"
+import { redirect } from "next/dist/server/api-utils"
+import { useRouter } from "next/navigation"
 
 export function ProductList() {
   const [products, setProducts] = useState([])
@@ -65,6 +67,12 @@ export function ProductList() {
       // Optionally, show an error message to the user
     }
   }
+
+  const router = useRouter();
+
+  const handleEdit = (productId) => {
+    router.push(`/admin/products/upload?id=${productId}`);
+  };
 
   if (loading) return <div className="text-center py-10">Loading products...</div>
   if (error) return <div className="text-center py-10 text-red-500">{error}</div>
@@ -116,7 +124,7 @@ export function ProductList() {
                 <TableCell>{product.quantity}</TableCell>
                 <TableCell>${product.price.toFixed(2)}</TableCell>
                 <TableCell className="text-right">
-                  <Button variant="ghost" size="icon" className="mr-2">
+                  <Button onClick={()=>handleEdit(product._id)} variant="ghost" size="icon" className="mr-2">
                     <Edit className="h-4 w-4" />
                   </Button>
                   <AlertDialog>

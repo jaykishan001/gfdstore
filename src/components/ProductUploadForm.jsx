@@ -1,7 +1,6 @@
 "use client"
-
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
@@ -46,24 +45,14 @@ const predefinedSizes = ["XS", "S", "M", "L", "XL", "XXL"]
 const predefinedCategories = ["Clothing", "Accessories", "Footwear"]
 
 export function ProductUploadForm() {
+  const searchParams = useSearchParams()
+  const id = searchParams.get("id")
   const router = useRouter()
   const [categories, setCategories] = useState([])
   const [newCategory, setNewCategory] = useState("")
   const [sizeOptions, setSizeOptions] = useState([])
   const [newSize, setNewSize] = useState("")
-
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await axios.get("http://localhost:3000/api/category")
-        console.log("response of category", response.data.data);
-        setCategories(response.data.data);
-      } catch (error) {
-        console.error("Error fetching categories:", error.message)
-      }
-    }
-    fetchCategories()
-  }, [])
+  const [isEditing, setIsEditing] = useState(!!id) // Determine if we're editing or creating
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -79,35 +68,79 @@ export function ProductUploadForm() {
     },
   })
 
-  function onSubmit(values) {
-    const formData = new FormData()
+  
+  useEffect(() => {
+    if (id) {
+      const fetchProductData = async () => {
+        try {
+          const response = await axios.get(`http://localhost:3000/api/productinfo/?productId=${id}`)
+          const productData = response.data.data
+          form.reset({
+            name: productData.name,
+            description: productData.description,
+            category: productData.category,
+            price: productData.price.toString(),
+            stock: productData.stock.toString(),
+            sizeOptions: productData.sizeOptions,
+            coupon: productData.coupon || "",
+          })
+          setSizeOptions(productData.sizeOptions)
+        } catch (error) {
+          console.error("Error fetching product data:", error)
+        }
+      }
+      fetchProductData()
+    }
+  }, [id, form])
 
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get("http://localhost:3000/api/category")
+        setCategories(response.data.data)
+      } catch (error) {
+        console.error("Error fetching categories:", error.message)
+      }
+    }
+    fetchCategories()
+  }, [])
+
+
+  const onSubmit = async (values) => {
+    const formData = new FormData()
     formData.append("name", values.name)
     formData.append("description", values.description)
     formData.append("category", values.category)
     formData.append("price", values.price)
     formData.append("stock", values.stock)
     formData.append("coupon", values.coupon || "")
-    values.sizeOptions.forEach(size => {
-      formData.append("sizeOptions", size)
-    })
+    values.sizeOptions.forEach((size) => formData.append("sizeOptions", size))
+    values.images.forEach((image) => formData.append("images", image))
 
-    values.images.forEach(image => {
-      formData.append("images", image)
-    })
-
-    axios.post("/api/product", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    })
-    .then(response => {
-      console.log("Product created successfully:", response.data);
-    })
-    .catch(error => {
-      console.error("Error creating product:", error.response.data.message)
-    })
+    try {
+      if (id) {
+        await axios.put(`http://localhost:3000/api/product${id}`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
+        console.log("Product updated successfully")
+      } else {
+        // Create new product
+        await axios.post("http://localhost:3000/api/product", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
+        console.log("Product created successfully")
+      }
+      router.push("/admin/products")
+    } catch (error) {
+      console.error("Error:", error.response?.data?.message || error.message)
+    }
   }
+
 
   const addCategory = () => {
     if (newCategory && !categories.some((cat) => cat.name === newCategory)) {
@@ -125,6 +158,7 @@ export function ProductUploadForm() {
       setNewSize("")
     }
   }
+
 
   const toggleSizeOption = (size) => {
     const updatedSizes = sizeOptions.includes(size)
@@ -363,6 +397,18 @@ export function ProductUploadForm() {
             </>
           ) : (
             "Upload Product"
+          )}
+        </Button>
+      
+
+        <Button type="submit" className="w-full">
+          {form.formState.isSubmitting ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              {isEditing ? "Updating..." : "Uploading..."}
+            </>
+          ) : (
+            isEditing ? "Edit Product" : "Add New Product"
           )}
         </Button>
       </form>

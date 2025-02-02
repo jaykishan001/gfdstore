@@ -65,6 +65,7 @@ export async function GET(req) {
     const minPrice = Number(url.searchParams.get("minPrice")) || 0;
     const maxPrice = Number(url.searchParams.get("maxPrice")) || Infinity;
     const sizes = url.searchParams.get("sizes");
+    const search = url.searchParams.get("search")?.trim() || "";
 
     const pageNum = Number(page?.trim()) || 1;
     const limitNum = Number(limit?.trim()) || 10;
@@ -79,6 +80,10 @@ export async function GET(req) {
 
     if (sizes) {
       filter.sizeOptions = { $in: sizes.split(",") };
+    }
+
+    if (search) {
+      filter.name = { $regex: search, $options: "i" }; // Case-insensitive search
     }
 
     const articles = await Product.aggregate([
@@ -152,6 +157,75 @@ export async function DELETE(req) {
     console.error(error);
     return NextResponse.json(
       { message: "Error deleting product", error: error.message },
+      { status: 500 }
+    );
+  }
+}
+export async function PUT(req) {
+  try {
+    await dbConnect();
+    const formData = await req.formData();
+    const productId = formData.get("id");
+    if (!productId) {
+      return NextResponse.json(
+        { message: "Product ID is required" },
+        { status: 400 }
+      );
+    }
+    const existingProduct = await Product.findById(productId);
+    if (!existingProduct) {
+      return NextResponse.json(
+        { message: "Product not found" },
+        { status: 404 }
+      );
+    }
+
+    const name = formData.get("name") || existingProduct.name;
+    const description = formData.get("description") || existingProduct.description;
+    const category = formData.get("category") || existingProduct.category;
+    const price = formData.get("price") || existingProduct.price;
+    const stock = formData.get("stock") || existingProduct.stock;
+    const sizeOptions = formData.getAll("sizeOptions").length > 0 ? formData.getAll("sizeOptions") : existingProduct.sizeOptions;
+    const newImages = formData.getAll("images");
+
+    let updatedImages = existingProduct.images;
+    if (newImages.length > 0) {
+      updatedImages = await uploadMultipleImages(newImages, "products");
+    }
+
+    const updatedProduct = await Product.findByIdAndUpdate(
+      productId,
+      {
+        name,
+        description,
+        category,
+        price,
+        stock,
+        sizeOptions,
+        images: updatedImages,
+      },
+      { new: true }
+    );
+
+   
+    if (category !== existingProduct.category) {
+      await Category.findByIdAndUpdate(existingProduct.category, {
+        $pull: { products: { _id: productId } },
+      });
+
+      await Category.findByIdAndUpdate(category, {
+        $push: { products: { _id: productId } },
+      });
+    }
+
+    return NextResponse.json(
+      { message: "Product updated successfully", product: updatedProduct },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { message: "Error updating product", error: error.message },
       { status: 500 }
     );
   }

@@ -70,7 +70,6 @@ const ProductPage = () => {
     setPriceRange(value);
   };
 
-  // Example categories and sizes
   const categories = ["Electronics", "Clothing", "Home", "Books", "Toys"];
   const sizes = ["S", "M", "L", "XL"];
 
@@ -85,7 +84,6 @@ const ProductPage = () => {
           </Button>
         </div>
 
-        {/* Filter Options */}
         {filter && (
           <div className="w-full bg-gray-200 p-6 rounded-lg shadow-lg mb-6">
             <div className="flex flex-col md:flex-row gap-6">
