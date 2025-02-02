@@ -11,6 +11,7 @@ import { removeproduct, updateQuantity } from "../../../actions/cart";
 
 function CartPage() {
   const [cartItems, setCartItems] = useState([]);
+  const { data: session, status } = useSession();
 
   useEffect(() => {
     if (status === "loading") return;
@@ -35,14 +36,44 @@ function CartPage() {
     };
     fetchCart();
   }, [session, status]);
-  const updatecart = async (newQuantity, productId) => {
-    if (newQuantity < 1) return;
-
-    const update = await updateQuantity(newQuantity, productId);
+  const updateQuantity1 = async (newQuantity, item) => {
+    if (newQuantity < 1 || isNaN(newQuantity)) return;
+    const itemid = item._id;
+    if (session) {
+      await updateQuantity(newQuantity, itemid);
+    } else {
+      const updatedCart = cartItems.map((cartItem) => {
+        if (item.uniqueKey) {
+          return cartItem.uniqueKey === item.uniqueKey
+            ? { ...cartItem, quantity: Number(newQuantity) }
+            : cartItem;
+        } else {
+          return cartItem._id === item._id
+            ? { ...cartItem, quantity: Number(newQuantity) }
+            : cartItem;
+        }
+      });
+      updateCartStorage(updatedCart);
+    }
   };
 
-  const removeItem = (itemId) => {
-    const update = removeproduct(itemId);
+  const removeItem = async (item) => {
+    if (session) {
+      const id = item._id;
+      const update = await removeproduct(id);
+    } else {
+      let updatedCart;
+
+      if (item.uniqueKey) {
+        updatedCart = cartItems.filter(
+          (cartItem) => cartItem.uniqueKey !== item.uniqueKey
+        );
+      } else {
+        updatedCart = cartItems.filter((cartItem) => cartItem._id !== item._id);
+      }
+
+      updateCartStorage(updatedCart);
+    }
   };
 
   // const total = cartItems.reduce(
@@ -84,9 +115,7 @@ function CartPage() {
                     <Button
                       variant="outline"
                       size="icon"
-                      onClick={() =>
-                        updateQuantity(item.quantity - 1, item._id)
-                      }
+                      onClick={() => updateQuantity1(item.quantity - 1, item)}
                     >
                       <Minus className="h-4 w-4 text-gray-600" />
                     </Button>
@@ -96,9 +125,7 @@ function CartPage() {
                     <Button
                       variant="outline"
                       size="icon"
-                      onClick={() =>
-                        updateQuantity(item.quantity + 1, item._id)
-                      }
+                      onClick={() => updateQuantity1(item.quantity + 1, item)}
                     >
                       <Plus className="h-4 w-4 text-gray-600" />
                     </Button>
@@ -106,7 +133,7 @@ function CartPage() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => removeItem(item._id)}
+                    onClick={() => removeItem(item)}
                     className="text-red-500"
                   >
                     <X className="h-5 w-5" />
