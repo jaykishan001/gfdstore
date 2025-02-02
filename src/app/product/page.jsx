@@ -5,7 +5,7 @@ import Container from "@/components/Container";
 import { ProductCard } from "@/components/ProductCard";
 import { FilterIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider"; // Assuming you have a Slider component for price range
+import { Slider } from "@/components/ui/slider";
 
 const ProductPage = () => {
   const [products, setProducts] = useState([]);
@@ -16,11 +16,10 @@ const ProductPage = () => {
   const [limit] = useState(10);
   const [filter, setFilter] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState([]);
-  const [priceRange, setPriceRange] = useState([0, 1000]); // Default price range
+  const [priceRange, setPriceRange] = useState([0, 1000]); 
   const [selectedSizes, setSelectedSizes] = useState([]);
 
 
-  // Fetch products with filters
   useEffect(() => {
     const fetchProducts = async () => {
       try {

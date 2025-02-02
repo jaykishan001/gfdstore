@@ -113,3 +113,46 @@ export async function GET(req) {
     );
   }
 }
+
+export async function DELETE(req) {
+  try {
+    await dbConnect();
+    const url = new URL(req.url);
+    const productId = url.searchParams.get("id");
+
+    if (!productId) {
+      return NextResponse.json(
+        { message: "Product ID is required" },
+        { status: 400 }
+      );
+    }
+
+    // Find the product to get its category
+    const product = await Product.findById(productId);
+    if (!product) {
+      return NextResponse.json(
+        { message: "Product not found" },
+        { status: 404 }
+      );
+    }
+
+    await Category.findByIdAndUpdate(product.category, {
+      $pull: { products: { _id: productId } },
+    });
+
+    // Delete the product
+    await Product.findByIdAndDelete(productId);
+
+    console.log("Product deleted successfully");
+    return NextResponse.json(
+      { message: "Product deleted successfully" },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { message: "Error deleting product", error: error.message },
+      { status: 500 }
+    );
+  }
+}
