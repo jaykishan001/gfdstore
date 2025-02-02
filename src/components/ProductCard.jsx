@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { triggerWishlistUpdate } from "./WishList";
 import { triggerCartUpdate } from "./CartIcon";
 
-export function ProductCard({ _id, name, price, images, stock, sizeOptions }) {
+export function ProductCard({ _id, name, price, images, stock, description, sizeOptions }) {
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [isInCart, setIsInCart] = useState(false);
   const imageUrl = images[0];
@@ -46,7 +46,13 @@ export function ProductCard({ _id, name, price, images, stock, sizeOptions }) {
 
   const handleAddToCart = (e) => {
     e.preventDefault();
-    const product = { _id, name, price, imageUrl };
+    const product = {
+      _id,
+      name,
+      price,
+      imageUrl,
+      size: sizeOptions?.[0] || "", // Store the first available size
+    };
     const cart = JSON.parse(window.localStorage.getItem("cart")) || [];
 
     if (isInCart) {
@@ -90,16 +96,38 @@ export function ProductCard({ _id, name, price, images, stock, sizeOptions }) {
           <h3 className="text-lg font-semibold mt-3 truncate text-gray-800">{name}</h3>
           <p className="text-gray-600 text-sm">${price?.toFixed(2)}</p>
           <p className="text-gray-500 text-xs mt-1">{stock > 0 ? `${stock} in stock` : "Out of stock"}</p>
+          
+          <p className="text-gray-700 text-sm mt-2">
+            {description?.length > 20? description.slice(0, 30) + "..." : description}
+          </p>
+          
+          {sizeOptions?.length > 0 && (
+            <div className="mt-2 text-sm text-gray-700">
+              <span className="font-semibold">Available Sizes:</span>
+              <div className="flex gap-2 mt-1">
+                {sizeOptions.map((size) => (
+                  <span
+                    key={size}
+                    className="px-3 py-1 bg-gray-200 text-xs rounded-full"
+                  >
+                    {size}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
         </CardContent>
 
         <CardFooter className="p-4 flex flex-col space-y-2">
           <Button
             onClick={handleAddToCart}
-            className={`w-full py-2 text-sm font-medium hover:bg-primary/90 transition duration-200 ${
-              isInCart ? "bg-gray-700 text-white" : "bg-primary text-white"
+            className={`w-full py-2 text-sm font-medium transition duration-200 ${
+              isInCart
+                ? "bg-[#EAB305] text-white hover:bg-yellow-400"
+                : "bg-primary text-white hover:bg-primary/90"
             }`}
           >
-            {isInCart ? "Remove from Cart" : "Add to Cart"}
+            {isInCart ? "Added to Cart" : "Add to Cart"}
           </Button>
 
           <Button
