@@ -20,7 +20,6 @@ const Header = async () => {
       <Container className="flex items-center justify-between gap-5 px-4 md:px-6">
         {/* Left Section: Logo */}
         <div className="flex items-center gap-3">
-          <MobileMenu />
           <Logo className="text-lg font-bold tracking-tight">
             MYOWN<span className="text-orange-500">STORE</span>
           </Logo>
