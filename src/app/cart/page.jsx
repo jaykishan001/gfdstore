@@ -8,7 +8,6 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { removeproduct, updateQuantity } from "../../../actions/cart";
 
 function CartPage() {
   const [cartItems, setCartItems] = useState([]);
@@ -45,24 +44,44 @@ function CartPage() {
     };
     fetchCart();
   }, [session, status]);
+
   const updateQuantity1 = async (newQuantity, item) => {
     if (newQuantity < 1 || isNaN(newQuantity)) return;
     const itemid = item._id;
-    if (session) {
-      await updateQuantity(newQuantity, itemid);
-    } else {
-      const updatedCart = cartItems.map((cartItem) => {
-        if (item.uniqueKey) {
-          return cartItem.uniqueKey === item.uniqueKey
-            ? { ...cartItem, quantity: Number(newQuantity) }
-            : cartItem;
-        } else {
-          return cartItem._id === item._id
-            ? { ...cartItem, quantity: Number(newQuantity) }
-            : cartItem;
-        }
-      });
-      updateCartStorage(updatedCart);
+
+    try {
+      if (session) {
+        // Updating cart in the backend
+        await axios.put(`/api/cart`, {
+          quantity: newQuantity,
+          productId: itemid,
+        });
+
+        // After updating, re-fetch the cart items to update the state
+        const response = await axios.get(
+          `/api/cart?userId=${session?.user?.id}`
+        );
+        const products = response.data.cart.products.map((item) => ({
+          _id: item.productId._id,
+          name: item.productId.name,
+          description: item.productId.description,
+          price: item.productId.price,
+          quantity: item.quantity,
+        }));
+        setCartItems(products);
+      } else {
+        // Updating cart in localStorage
+        const updatedCart = cartItems.map((cartItem) => {
+          if (cartItem._id === item._id) {
+            return { ...cartItem, quantity: Number(newQuantity) };
+          }
+          return cartItem;
+        });
+
+        updateCartStorage(updatedCart);
+      }
+    } catch (error) {
+      console.error("Error updating cart:", error);
     }
   };
 
@@ -73,28 +92,42 @@ function CartPage() {
   };
 
   const removeItem = async (item) => {
-    if (session) {
-      const id = item._id;
-      const update = await removeproduct(id);
-    } else {
-      let updatedCart;
+    try {
+      if (session) {
+        await axios.delete("/api/cart", {
+          data: { productId: item._id }, // Correct way to send data in DELETE request
+        });
 
-      if (item.uniqueKey) {
-        updatedCart = cartItems.filter(
-          (cartItem) => cartItem.uniqueKey !== item.uniqueKey
+        // After removing, re-fetch the cart items to update the state
+        const response = await axios.get(
+          `/api/cart?userId=${session?.user?.id}`
         );
+        const products = response.data.cart.products.map((item) => ({
+          _id: item.productId._id,
+          name: item.productId.name,
+          description: item.productId.description,
+          price: item.productId.price,
+          quantity: item.quantity,
+        }));
+        setCartItems(products);
       } else {
-        updatedCart = cartItems.filter((cartItem) => cartItem._id !== item._id);
-      }
+        let updatedCart;
+        if (item.uniqueKey) {
+          updatedCart = cartItems.filter(
+            (cartItem) => cartItem.uniqueKey !== item.uniqueKey
+          );
+        } else {
+          updatedCart = cartItems.filter(
+            (cartItem) => cartItem._id !== item._id
+          );
+        }
 
-      updateCartStorage(updatedCart);
+        updateCartStorage(updatedCart);
+      }
+    } catch (error) {
+      console.error("Error removing item:", error);
     }
   };
-
-  // const total = cartItems.reduce(
-  //   (sum, item) => sum + item.price * item.quantity,
-  //   0
-  // );
 
   return (
     <>
