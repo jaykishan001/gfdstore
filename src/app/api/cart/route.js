@@ -52,7 +52,7 @@ export async function GET(req) {
 
     const cart = await Cart.findOne({ userId }).populate({
       path: "products.productId",
-      select: "name price description",
+      select: "name price description images",
     });
 
     // console.log("Cart after populate:", JSON.stringify(cart, null, 2));

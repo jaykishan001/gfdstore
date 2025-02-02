@@ -1,5 +1,6 @@
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
+import AuthProvider from "@/components/SessionProvider";
 import { Toaster } from "@/components/ui/toaster";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -25,10 +26,12 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased `}
       >
-        <Header />
-        <main className="min-h-screen mx-auto px-4">{children}</main>
-        <Toaster />
-        <Footer />
+        <AuthProvider>
+          <Header />
+          <main className="min-h-screen mx-auto px-4">{children}</main>
+          <Toaster />
+          <Footer />
+        </AuthProvider>
       </body>
     </html>
   );
