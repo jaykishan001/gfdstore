@@ -10,7 +10,7 @@ import { useEffect, useState } from "react";
 
 function CartPage() {
   const [cartItems, setCartItems] = useState([]);
-
+  const {data: status, session} = useSession()
   useEffect(() => {
     if (status === "loading") return;
     const fetchCart = async () => {
