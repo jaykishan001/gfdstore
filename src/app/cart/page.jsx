@@ -1,4 +1,5 @@
 "use client";
+import { triggerCartUpdate } from "@/components/CartIcon";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import axios from "axios";
@@ -32,6 +33,14 @@ function CartPage() {
         } catch (error) {
           console.error("Error fetching cart:", error);
         }
+      } else {
+        const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
+        const validCart = storedCart.map((item) => ({
+          ...item,
+          quantity: Number(item.quantity) || 1,
+          price: Number(item.price) || 0,
+        }));
+        setCartItems(validCart);
       }
     };
     fetchCart();
@@ -55,6 +64,12 @@ function CartPage() {
       });
       updateCartStorage(updatedCart);
     }
+  };
+
+  const updateCartStorage = (updatedCart) => {
+    setCartItems(updatedCart);
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+    triggerCartUpdate();
   };
 
   const removeItem = async (item) => {
