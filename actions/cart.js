@@ -5,7 +5,6 @@ import { auth } from "@/auth";
 import Cart from "@/models/cartmodel";
 import mongoose from "mongoose";
 import { getServerSession } from "next-auth";
-import { revalidatePath } from "next/cache";
 
 export const updateQuantity = async (quantity, productId) => {
   try {
@@ -44,8 +43,6 @@ export const updateQuantity = async (quantity, productId) => {
       throw new Error("Cart not found or product does not exist");
     }
 
-    revalidatePath("/cart");
-
     return { message: "Quantity updated", cart: updatedCart };
   } catch (error) {
     throw new Error("Failed to update cart quantity: " + error.message);
@@ -77,9 +74,6 @@ export const removeproduct = async (productId) => {
     if (!updatedCart) {
       throw new Error("Product not found in cart");
     }
-
-    revalidatePath("/api/cart");
-    revalidatePath("/cart");
 
     return { message: "Product removed from cart", cart: updatedCart };
   } catch (error) {
