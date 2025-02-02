@@ -1,7 +1,6 @@
 "use client"
-
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
@@ -15,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Checkbox } from "@/components/ui/checkbox"
+import axios from "axios"
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -45,11 +45,14 @@ const predefinedSizes = ["XS", "S", "M", "L", "XL", "XXL"]
 const predefinedCategories = ["Clothing", "Accessories", "Footwear"]
 
 export function ProductUploadForm() {
+  const searchParams = useSearchParams()
+  const id = searchParams.get("id")
   const router = useRouter()
-  const [categories, setCategories] = useState(predefinedCategories)
+  const [categories, setCategories] = useState([])
   const [newCategory, setNewCategory] = useState("")
   const [sizeOptions, setSizeOptions] = useState([])
   const [newSize, setNewSize] = useState("")
+  const [isEditing, setIsEditing] = useState(!!id) // Determine if we're editing or creating
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -65,33 +68,102 @@ export function ProductUploadForm() {
     },
   })
 
-  function onSubmit(values) {
-    // Here you would typically send the data to your API
-    console.log(values)
-    // Simulate API call
-    setTimeout(() => {
+  
+  useEffect(() => {
+    if (id) {
+      const fetchProductData = async () => {
+        try {
+          const response = await axios.get(`http://localhost:3000/api/productinfo/?productId=${id}`)
+          const productData = response.data.data
+          form.reset({
+            name: productData.name,
+            description: productData.description,
+            category: productData.category,
+            price: productData.price.toString(),
+            stock: productData.stock.toString(),
+            sizeOptions: productData.sizeOptions,
+            coupon: productData.coupon || "",
+          })
+          setSizeOptions(productData.sizeOptions)
+        } catch (error) {
+          console.error("Error fetching product data:", error)
+        }
+      }
+      fetchProductData()
+    }
+  }, [id, form])
+
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get("http://localhost:3000/api/category")
+        setCategories(response.data.data)
+      } catch (error) {
+        console.error("Error fetching categories:", error.message)
+      }
+    }
+    fetchCategories()
+  }, [])
+
+
+  const onSubmit = async (values) => {
+    const formData = new FormData()
+    formData.append("name", values.name)
+    formData.append("description", values.description)
+    formData.append("category", values.category)
+    formData.append("price", values.price)
+    formData.append("stock", values.stock)
+    formData.append("coupon", values.coupon || "")
+    values.sizeOptions.forEach((size) => formData.append("sizeOptions", size))
+    values.images.forEach((image) => formData.append("images", image))
+
+    try {
+      if (id) {
+        await axios.put(`http://localhost:3000/api/product${id}`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
+        console.log("Product updated successfully")
+      } else {
+        // Create new product
+        await axios.post("http://localhost:3000/api/product", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
+        console.log("Product created successfully")
+      }
       router.push("/admin/products")
-    }, 2000)
+    } catch (error) {
+      console.error("Error:", error.response?.data?.message || error.message)
+    }
   }
 
+
   const addCategory = () => {
-    if (newCategory && !categories.includes(newCategory)) {
-      setCategories([...categories, newCategory])
-      form.setValue("category", newCategory)
+    if (newCategory && !categories.some((cat) => cat.name === newCategory)) {
+      const newCategoryObj = { name: newCategory, _id: newCategory.toLowerCase().replace(/\s/g, "-") }
+      setCategories([...categories, newCategoryObj])
+      form.setValue("category", newCategoryObj._id)
       setNewCategory("")
     }
   }
 
   const addSizeOption = () => {
     if (newSize && !sizeOptions.includes(newSize)) {
-      setSizeOptions([...sizeOptions, newSize])
+      setSizeOptions((prev) => [...prev, newSize])
       form.setValue("sizeOptions", [...sizeOptions, newSize])
       setNewSize("")
     }
   }
 
+
   const toggleSizeOption = (size) => {
-    const updatedSizes = sizeOptions.includes(size) ? sizeOptions.filter((s) => s !== size) : [...sizeOptions, size]
+    const updatedSizes = sizeOptions.includes(size)
+      ? sizeOptions.filter((s) => s !== size)
+      : [...sizeOptions, size]
     setSizeOptions(updatedSizes)
     form.setValue("sizeOptions", updatedSizes)
   }
@@ -129,10 +201,11 @@ export function ProductUploadForm() {
                       </FormControl>
                       <SelectContent>
                         {categories.map((category) => (
-                          <SelectItem key={category} value={category}>
-                            {category}
+                          <SelectItem key={category._id} value={category._id}>
+                            {category.name}
                           </SelectItem>
                         ))}
+
                         <Dialog>
                           <DialogTrigger asChild>
                             <Button variant="ghost" className="w-full justify-start">
@@ -324,6 +397,18 @@ export function ProductUploadForm() {
             </>
           ) : (
             "Upload Product"
+          )}
+        </Button>
+      
+
+        <Button type="submit" className="w-full">
+          {form.formState.isSubmitting ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              {isEditing ? "Updating..." : "Uploading..."}
+            </>
+          ) : (
+            isEditing ? "Edit Product" : "Add New Product"
           )}
         </Button>
       </form>
