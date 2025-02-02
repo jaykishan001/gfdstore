@@ -1,4 +1,5 @@
 "use client";
+import { triggerCartUpdate } from "@/components/CartIcon";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import axios from "axios";
@@ -7,10 +8,16 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { removeproduct, updateQuantity } from "../../../actions/cart";
 
 function CartPage() {
   const [cartItems, setCartItems] = useState([]);
+<<<<<<< HEAD
   const {data: status, session} = useSession()
+=======
+  const { data: session, status } = useSession();
+
+>>>>>>> 00530bcaf915a2f5a4c92eaf2ff3b7bda956474c
   useEffect(() => {
     if (status === "loading") return;
     const fetchCart = async () => {
@@ -30,26 +37,62 @@ function CartPage() {
         } catch (error) {
           console.error("Error fetching cart:", error);
         }
+      } else {
+        const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
+        const validCart = storedCart.map((item) => ({
+          ...item,
+          quantity: Number(item.quantity) || 1,
+          price: Number(item.price) || 0,
+        }));
+        setCartItems(validCart);
       }
     };
     fetchCart();
   }, [session, status]);
-
-  const updateQuantity = (item, newQuantity) => {
-    if (newQuantity < 1) return;
-    setCartItems((prevItems) =>
-      prevItems.map((cartItem) =>
-        cartItem._id === item._id
-          ? { ...cartItem, quantity: newQuantity }
-          : cartItem
-      )
-    );
+  const updateQuantity1 = async (newQuantity, item) => {
+    if (newQuantity < 1 || isNaN(newQuantity)) return;
+    const itemid = item._id;
+    if (session) {
+      await updateQuantity(newQuantity, itemid);
+    } else {
+      const updatedCart = cartItems.map((cartItem) => {
+        if (item.uniqueKey) {
+          return cartItem.uniqueKey === item.uniqueKey
+            ? { ...cartItem, quantity: Number(newQuantity) }
+            : cartItem;
+        } else {
+          return cartItem._id === item._id
+            ? { ...cartItem, quantity: Number(newQuantity) }
+            : cartItem;
+        }
+      });
+      updateCartStorage(updatedCart);
+    }
   };
 
-  const removeItem = (item) => {
-    setCartItems((prevItems) =>
-      prevItems.filter((cartItem) => cartItem._id !== item._id)
-    );
+  const updateCartStorage = (updatedCart) => {
+    setCartItems(updatedCart);
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+    triggerCartUpdate();
+  };
+
+  const removeItem = async (item) => {
+    if (session) {
+      const id = item._id;
+      const update = await removeproduct(id);
+    } else {
+      let updatedCart;
+
+      if (item.uniqueKey) {
+        updatedCart = cartItems.filter(
+          (cartItem) => cartItem.uniqueKey !== item.uniqueKey
+        );
+      } else {
+        updatedCart = cartItems.filter((cartItem) => cartItem._id !== item._id);
+      }
+
+      updateCartStorage(updatedCart);
+    }
   };
 
   // const total = cartItems.reduce(
@@ -91,7 +134,7 @@ function CartPage() {
                     <Button
                       variant="outline"
                       size="icon"
-                      onClick={() => updateQuantity(item, item.quantity - 1)}
+                      onClick={() => updateQuantity1(item.quantity - 1, item)}
                     >
                       <Minus className="h-4 w-4 text-gray-600" />
                     </Button>
@@ -101,7 +144,7 @@ function CartPage() {
                     <Button
                       variant="outline"
                       size="icon"
-                      onClick={() => updateQuantity(item, item.quantity + 1)}
+                      onClick={() => updateQuantity1(item.quantity + 1, item)}
                     >
                       <Plus className="h-4 w-4 text-gray-600" />
                     </Button>
