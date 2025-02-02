@@ -1,32 +1,59 @@
 import mongoose, { Schema } from "mongoose";
-const orderSchema = new Schema({
-  user: { type: Schema.Types.ObjectId, ref: "User" },
-  products: [
-    {
-      product: { type: Schema.Types.ObjectId, ref: "Product" },
-      quantity: { type: Number, required: true },
-    },
-  ],
-  totalAmount: { type: Number, required: true },
-  discountedAmount: { type: Number, default: 0 },
 
-  status: {
-    type: String,
-    enum: ["Pending", "Shipped", "Delivered", "Cancelled"],
+const orderSchema = new Schema(
+  {
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: false,
+      index: true,
+    },
+
+    isGuest: { type: Boolean, default: false },
+
+    guestDetails: {
+      name: { type: String },
+      email: { type: String },
+      phone: { type: String },
+    },
+
+    products: [
+      {
+        _id: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Product",
+          required: true,
+        },
+        quantity: { type: Number, required: true, min: 1 },
+      },
+    ],
+
+    totalAmount: { type: Number, required: true },
+
+    status: {
+      type: String,
+      enum: ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"],
+      default: "Pending",
+      index: true,
+    },
+
+    payment: {
+      type: String,
+      enum: ["Card", "UPI", "NetBanking", "COD", "Wallet"],
+    },
+
+    shippingAddress: { type: Schema.Types.ObjectId, ref: "Address" },
+
+    guestShippingAddress: {
+      street: { type: String },
+      city: { type: String },
+      state: { type: String },
+      postalCode: { type: String },
+      country: { type: String },
+    },
   },
-  shippingAddress: {
-    type: Schema.Types.ObjectId,
-    ref: "Address",
-  },
-  paymentStatus: {
-    type: String,
-    enum: ["Pending", "Completed", "Failed"],
-    default: "Pending",
-  },
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now },
-});
+  { timestamps: true }
+);
 
 const Order = mongoose.models.Order || mongoose.model("Order", orderSchema);
-
 export default Order;

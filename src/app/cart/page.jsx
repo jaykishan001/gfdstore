@@ -128,6 +128,7 @@ function CartPage() {
       console.error("Error removing item:", error);
     }
   };
+  const encodedCartData = encodeURIComponent(JSON.stringify(cartItems));
 
   return (
     <>
@@ -212,9 +213,12 @@ function CartPage() {
                 <span>Total</span>
                 {/* <span>${total.toFixed(2)}</span> */}
               </div>
-              <Button className="w-full mt-6 bg-orange-500 hover:bg-orange-600 text-white py-2 rounded-lg font-semibold shadow-md">
-                Proceed to Checkout
-              </Button>
+              <Link href={`/order?cartData=${encodedCartData}`}>
+                {" "}
+                <Button className="w-full mt-6 bg-orange-500 hover:bg-orange-600 text-white py-2 rounded-lg font-semibold shadow-md">
+                  Proceed to Checkout
+                </Button>
+              </Link>
             </div>
           </div>
         </div>

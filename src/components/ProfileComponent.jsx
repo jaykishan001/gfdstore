@@ -1,16 +1,22 @@
 "use client";
-import { useEffect, useState } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Package, MapPin, CreditCard, LogOut, User } from "lucide-react";
-import { useSession } from "next-auth/react";
 import axios from "axios";
-import Link from "next/link";
+import { CreditCard, LogOut, MapPin, Package, User } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export function ProfileContent() {
   const [activeTab, setActiveTab] = useState("personal");
@@ -26,13 +32,15 @@ export function ProfileContent() {
     state: "",
     zipCode: "",
     country: "",
-  }); 
+  });
 
   useEffect(() => {
     if (status === "authenticated" && session?.user?.id) {
       const fetchUserData = async () => {
         try {
-          const response = await axios.get(`http://localhost:3000/api/users?id=${session.user.id}`);
+          const response = await axios.get(
+            `http://localhost:3000/api/users?id=${session.user.id}`
+          );
           console.log("response of user", response.data);
           setUserData(response.data);
         } catch (error) {
@@ -43,27 +51,30 @@ export function ProfileContent() {
         }
       };
       fetchUserData();
-    }
-    else{
-      redirect('/login');
+    } else {
+      redirect("/login");
     }
   }, [session, status]);
 
-  
   const handleAddressChange = (e) => {
     const { id, value } = e.target;
     setNewAddress((prev) => ({ ...prev, [id]: value }));
   };
 
-
   const handleSaveAddress = () => {
     if (!userData.address) {
-      userData.address = []; 
+      userData.address = [];
     }
     const updatedAddresses = [...userData.address, newAddress];
     setUserData((prev) => ({ ...prev, address: updatedAddresses }));
     setShowAddressForm(false); // Hide the form after saving
-    setNewAddress({ street: "", city: "", state: "", zipCode: "", country: "" }); // Reset form
+    setNewAddress({
+      street: "",
+      city: "",
+      state: "",
+      zipCode: "",
+      country: "",
+    }); // Reset form
   };
 
   if (status === "loading" || loading) {
@@ -84,7 +95,10 @@ export function ProfileContent() {
         <CardContent className="space-y-4">
           <div className="flex flex-col items-center space-y-2 sm:flex-row sm:space-x-4 sm:space-y-0">
             <Avatar className="h-24 w-24">
-              <AvatarImage src={session?.user?.image || "/placeholder-avatar.jpg"} alt="User" />
+              <AvatarImage
+                src={session?.user?.image || "/placeholder-avatar.jpg"}
+                alt="User"
+              />
               <AvatarFallback>UN</AvatarFallback>
             </Avatar>
             <Button>Change Avatar</Button>
@@ -94,14 +108,20 @@ export function ProfileContent() {
               <Label htmlFor="firstName">First name</Label>
               <Input
                 id="firstName"
-                defaultValue={userData?.firstName || session?.user?.name || "John"}
+                defaultValue={
+                  userData?.firstName || session?.user?.name || "John"
+                }
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
-                defaultValue={userData?.email || session?.user?.email || "john.doe@example.com"}
+                defaultValue={
+                  userData?.email ||
+                  session?.user?.email ||
+                  "john.doe@example.com"
+                }
                 type="email"
               />
             </div>
@@ -130,11 +150,18 @@ export function ProfileContent() {
           <div className="space-y-4">
             {userData?.orderHistory?.length > 0 ? (
               userData.orderHistory.map((order) => (
-                <div key={order} className="flex items-center space-x-4 rounded-lg border p-4">
+                <div
+                  key={order}
+                  className="flex items-center space-x-4 rounded-lg border p-4"
+                >
                   <Package className="h-10 w-10 flex-shrink-0 text-muted-foreground" />
                   <div className="flex-1 space-y-1">
-                    <p className="font-medium">Order #{order.toString().padStart(5, "0")}</p>
-                    <p className="text-sm text-muted-foreground">Placed on April {order}, 2023</p>
+                    <p className="font-medium">
+                      Order #{order.toString().padStart(5, "0")}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Placed on April {order}, 2023
+                    </p>
                   </div>
                   <Button variant="outline">View Details</Button>
                 </div>
@@ -159,12 +186,15 @@ export function ProfileContent() {
                 <Label>Select Address</Label>
                 <select
                   className="w-full p-2 border rounded"
-                  onChange={(e) => setSelectedAddress(userData.address[e.target.value])}
+                  onChange={(e) =>
+                    setSelectedAddress(userData.address[e.target.value])
+                  }
                 >
                   <option value="">Select an address</option>
                   {userData.address.map((addr, index) => (
                     <option key={index} value={index}>
-                      {addr.street}, {addr.city}, {addr.state}, {addr.zipCode}, {addr.country}
+                      {addr.street}, {addr.city}, {addr.state}, {addr.zipCode},{" "}
+                      {addr.country}
                     </option>
                   ))}
                 </select>
@@ -173,8 +203,9 @@ export function ProfileContent() {
                 <div className="space-y-2">
                   <p className="font-medium">Selected Address:</p>
                   <p>
-                    {selectedAddress.street}, {selectedAddress.city}, {selectedAddress.state},{" "}
-                    {selectedAddress.zipCode}, {selectedAddress.country}
+                    {selectedAddress.street}, {selectedAddress.city},{" "}
+                    {selectedAddress.state}, {selectedAddress.zipCode},{" "}
+                    {selectedAddress.country}
                   </p>
                 </div>
               )}
@@ -182,7 +213,9 @@ export function ProfileContent() {
           ) : (
             <p>No addresses found.</p>
           )}
-          <Button onClick={() => setShowAddressForm(true)}>Add New Address</Button>
+          <Button onClick={() => setShowAddressForm(true)}>
+            Add New Address
+          </Button>
           {showAddressForm && (
             <div className="space-y-4">
               <div className="space-y-2">

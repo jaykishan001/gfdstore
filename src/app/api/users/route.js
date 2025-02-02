@@ -14,7 +14,9 @@ export async function GET(req) {
 
     await dbConnect(); // Ensure database connection is established
 
-    const user = await User.findById(id).populate("address"); // Populate address
+    const user = await User.findById(id)
+      .populate("address")
+      .populate("orderHistory");
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
