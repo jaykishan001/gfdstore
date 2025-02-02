@@ -7,6 +7,7 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { removeproduct, updateQuantity } from "../../../actions/cart";
 
 function CartPage() {
   const [cartItems, setCartItems] = useState([]);
@@ -35,22 +36,14 @@ function CartPage() {
     };
     fetchCart();
   }, [session, status]);
-
-  const updateQuantity = (item, newQuantity) => {
+  const updatecart = async (newQuantity, productId) => {
     if (newQuantity < 1) return;
-    setCartItems((prevItems) =>
-      prevItems.map((cartItem) =>
-        cartItem._id === item._id
-          ? { ...cartItem, quantity: newQuantity }
-          : cartItem
-      )
-    );
+
+    const update = await updateQuantity(newQuantity, productId);
   };
 
-  const removeItem = (item) => {
-    setCartItems((prevItems) =>
-      prevItems.filter((cartItem) => cartItem._id !== item._id)
-    );
+  const removeItem = (itemId) => {
+    const update = removeproduct(itemId);
   };
 
   // const total = cartItems.reduce(
@@ -92,7 +85,9 @@ function CartPage() {
                     <Button
                       variant="outline"
                       size="icon"
-                      onClick={() => updateQuantity(item, item.quantity - 1)}
+                      onClick={() =>
+                        updateQuantity(item.quantity - 1, item._id)
+                      }
                     >
                       <Minus className="h-4 w-4 text-gray-600" />
                     </Button>
@@ -102,7 +97,9 @@ function CartPage() {
                     <Button
                       variant="outline"
                       size="icon"
-                      onClick={() => updateQuantity(item, item.quantity + 1)}
+                      onClick={() =>
+                        updateQuantity(item.quantity + 1, item._id)
+                      }
                     >
                       <Plus className="h-4 w-4 text-gray-600" />
                     </Button>
@@ -110,7 +107,7 @@ function CartPage() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => removeItem(item)}
+                    onClick={() => removeItem(item._id)}
                     className="text-red-500"
                   >
                     <X className="h-5 w-5" />
