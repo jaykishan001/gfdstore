@@ -61,21 +61,66 @@ export function ProfileContent() {
     setNewAddress((prev) => ({ ...prev, [id]: value }));
   };
 
-  const handleSaveAddress = () => {
-    if (!userData.address) {
-      userData.address = [];
+  const handleSaveAddress = async () => {
+    if (!newAddress.street || !newAddress.city || !newAddress.state || !newAddress.zipCode || !newAddress.country) {
+      alert("Please fill out all the fields.");
+      return;
     }
-    const updatedAddresses = [...userData.address, newAddress];
-    setUserData((prev) => ({ ...prev, address: updatedAddresses }));
-    setShowAddressForm(false); // Hide the form after saving
-    setNewAddress({
-      street: "",
-      city: "",
-      state: "",
-      zipCode: "",
-      country: "",
-    }); // Reset form
+
+    const addressData = {
+      street: newAddress.street,
+      city: newAddress.city,
+      state: newAddress.state,
+      postalCode: newAddress.zipCode,
+      country: newAddress.country,
+      phone: userData?.phone, 
+      user_Id: session?.user?.id,
+    };
+  
+    try {
+      console.log(addressData);
+      const response = await axios.post("http://localhost:3000/api/address", addressData);
+  
+      if (response.status === 200) {
+        alert("Address added successfully!");
+        setUserData((prev) => ({
+          ...prev,
+          address: [...prev.address, response.data.address],
+        }));
+        setShowAddressForm(false); 
+        setNewAddress({ street: "", city: "", state: "", zipCode: "", country: "" }); 
+      } else {
+        alert("Failed to add address. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error adding address:", error);
+      alert("An error occurred while adding the address. Please try again later.");
+    }
   };
+  
+
+  const handleCancelOrder = async (orderId) => {
+    try {
+      const response = await axios.post(
+        `http://localhost:3000/api/orders/cancel`,
+        { orderId }
+      );
+      if (response.data.success) {
+        // Update the local state to reflect the cancellation
+        setUserData((prevData) => {
+          const updatedOrders = prevData.orderHistory.map((order) =>
+            order._id === orderId ? { ...order, status: "Canceled" } : order
+          );
+          return { ...prevData, orderHistory: updatedOrders };
+        });
+        alert("Order canceled successfully!");
+      }
+    } catch (error) {
+      console.error("Error canceling order:", error);
+      alert("Failed to cancel the order. Please try again later.");
+    }
+  };
+  
 
   if (status === "loading" || loading) {
     return <div>Loading...</div>;
@@ -151,28 +196,45 @@ export function ProfileContent() {
             {userData?.orderHistory?.length > 0 ? (
               userData.orderHistory.map((order) => (
                 <div
-                  key={order}
+                  key={order._id} // Assuming order has _id as the unique identifier
                   className="flex items-center space-x-4 rounded-lg border p-4"
                 >
                   <Package className="h-10 w-10 flex-shrink-0 text-muted-foreground" />
                   <div className="flex-1 space-y-1">
                     <p className="font-medium">
-                      Order #{order.toString().padStart(5, "0")}
+                      Order #{order._id.toString().padStart(5, "0")}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      Placed on April {order}, 2023
+                      Placed on {new Date(order.createdAt).toLocaleDateString()}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Total: ${order.totalAmount}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Status: {order.status || "Processing"}
                     </p>
                   </div>
+                  {/* Button for viewing order details */}
                   <Button variant="outline">View Details</Button>
+                  {/* Cancel Order button if the order is in processing status */}
+                  {order.status === "Processing" && (
+                    <Button
+                      variant="destructive"
+                      onClick={() => handleCancelOrder(order._id)}
+                    >
+                      Cancel Order
+                    </Button>
+                  )}
                 </div>
               ))
             ) : (
-              <h1>There is no order. Buy some products!</h1>
+              <h1>There are no orders. Buy some products!</h1>
             )}
           </div>
         </CardContent>
       </Card>
     ),
+    
     address: (
       <Card>
         <CardHeader>

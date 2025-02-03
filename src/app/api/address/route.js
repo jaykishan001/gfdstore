@@ -5,9 +5,9 @@ import { NextResponse } from "next/server";
 
 export async function POST(req) {
   try {
-    const { street, city, state, postalCode, country, user_Id, phone } =
+    const { street, city, state, postalCode, country, user_Id} =
       await req.json();
-    if (!street || !city || !state || !postalCode || !country || !phone) {
+    if (!street || !city || !state || !postalCode || !country) {
       return NextResponse.json(
         { message: "All fields are required" },
         { status: 400 }
@@ -22,7 +22,6 @@ export async function POST(req) {
       state,
       postalCode,
       country,
-      phone,
     });
 
     const user = await User.findByIdAndUpdate(

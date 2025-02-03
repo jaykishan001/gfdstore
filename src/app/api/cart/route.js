@@ -54,9 +54,7 @@ export async function GET(req) {
       path: "products.productId",
       select: "name price description images",
     });
-
-    // console.log("Cart after populate:", JSON.stringify(cart, null, 2));
-
+ 
     if (!cart) {
       return NextResponse.json(
         { message: "Cart not found", cart: [] },

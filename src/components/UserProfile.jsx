@@ -19,12 +19,12 @@ const UserProfile = () => {
   };
 
   const handleLogout = async () => {
-    // Calling NextAuth's signOut function
+   
     await signOut({
-      redirect: true, // This will handle redirection automatically after logout
-      callbackUrl: "/login", // Redirect to the login page after logout
+      redirect: true, 
+      callbackUrl: "/login", 
     });
-    setOpen(false); // Close the Popover on logout
+    setOpen(false); 
   };
 
   return (
