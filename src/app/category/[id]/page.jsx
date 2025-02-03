@@ -4,7 +4,7 @@ import { ProductCard } from "@/components/ProductCard";
 import React from "react";
 
 const CategoryPage = async ({ params }) => {
-  const category = await params?.id; // ✅ Await params.id
+  const category = await params?.id; 
   console.log(category);
 
   const products = [

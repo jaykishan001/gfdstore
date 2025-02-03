@@ -12,7 +12,7 @@ import { useSession } from "next-auth/react";
 export function ProductCard({ _id, name, price, images, stock, description, sizeOptions }) {
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [isInCart, setIsInCart] = useState(false);
-  const imageUrl = images[0];
+  const imageUrl = images[0]|| "";
   const { data: session } = useSession();
 
   const loadStorageData = () => {
@@ -49,7 +49,6 @@ export function ProductCard({ _id, name, price, images, stock, description, size
     const product = { _id, name, price, imageUrl, size: sizeOptions?.[0] || "" };
 
     if (session?.user) {
-      // User is logged in, update the database
       try {
         const response = await fetch("/api/cart", {
           method: "POST",
@@ -57,11 +56,11 @@ export function ProductCard({ _id, name, price, images, stock, description, size
           body: JSON.stringify({ userId: session.user.id, products: [{ productId: _id, quantity: 1 }] })
         });
         if (!response.ok) throw new Error("Failed to update cart");
+        triggerCartUpdate();
       } catch (error) {
         console.error("Error adding to cart:", error);
       }
     } else {
-      // User is not logged in, update local storage
       let cart = JSON.parse(localStorage.getItem("cart")) || [];
       
       if (isInCart) {
@@ -71,10 +70,10 @@ export function ProductCard({ _id, name, price, images, stock, description, size
       }
       
       localStorage.setItem("cart", JSON.stringify(cart));
+      triggerCartUpdate();
     }
 
     setIsInCart(!isInCart);
-    triggerCartUpdate();
   };
 
   return (

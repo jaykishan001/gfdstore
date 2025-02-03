@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import axios from "axios";
 import { CreditCard, LogOut, MapPin, Package, User } from "lucide-react";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -98,6 +98,14 @@ export function ProfileContent() {
     }
   };
   
+
+  const handleLogout = async () => {
+      await signOut({
+        redirect: true, 
+        callbackUrl: "/login", 
+      });
+      setOpen(false); 
+    };
 
   const handleCancelOrder = async (orderId, userId) => {
   console.log("Canceling order:", orderId, userId);
@@ -387,7 +395,7 @@ export function ProfileContent() {
               <CardTitle>Account Actions</CardTitle>
             </CardHeader>
             <CardContent>
-              <Button variant="destructive" className="w-full sm:w-auto">
+              <Button oncClick={handleLogout} variant="destructive" className="w-full sm:w-auto">
                 <LogOut className="mr-2 h-4 w-4" />
                 Sign Out
               </Button>
