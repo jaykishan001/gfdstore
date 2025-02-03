@@ -15,7 +15,7 @@ export async function GET(req) {
     const result = await Product.aggregate([
       {
         $search: {
-          index: "default",
+          index: "auto_complete",
           text: {
             query: query,
             path: { wildcard: "*" },
