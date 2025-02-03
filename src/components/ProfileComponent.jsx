@@ -99,27 +99,26 @@ export function ProfileContent() {
   };
   
 
-  const handleCancelOrder = async (orderId) => {
-    try {
-      const response = await axios.post(
-        `http://localhost:3000/api/orders/cancel`,
-        { orderId }
-      );
-      if (response.data.success) {
-        // Update the local state to reflect the cancellation
-        setUserData((prevData) => {
-          const updatedOrders = prevData.orderHistory.map((order) =>
-            order._id === orderId ? { ...order, status: "Canceled" } : order
-          );
-          return { ...prevData, orderHistory: updatedOrders };
-        });
-        alert("Order canceled successfully!");
-      }
-    } catch (error) {
-      console.error("Error canceling order:", error);
-      alert("Failed to cancel the order. Please try again later.");
+  const handleCancelOrder = async (orderId, userId) => {
+  console.log("Canceling order:", orderId, userId);
+  try {
+    const response = await axios.post("http://localhost:3000/api/productorder", { orderId, userId });
+    console.log('response of order', response)
+    if (response.data?.success) {
+      setUserData((prevData) => ({
+        ...prevData,
+        orderHistory: prevData.orderHistory.filter((order) => order._id !== orderId),
+      }));
+
+      alert("Order canceled successfully!");
+    } else {
+      alert(response.data?.message || "Failed to cancel the order.");
     }
-  };
+  } catch (error) {
+    console.error("Error canceling order:", error);
+    alert("An error occurred while canceling the order.");
+  }
+};
   
 
   if (status === "loading" || loading) {
@@ -196,7 +195,7 @@ export function ProfileContent() {
             {userData?.orderHistory?.length > 0 ? (
               userData.orderHistory.map((order) => (
                 <div
-                  key={order._id} // Assuming order has _id as the unique identifier
+                  key={order._id}
                   className="flex items-center space-x-4 rounded-lg border p-4"
                 >
                   <Package className="h-10 w-10 flex-shrink-0 text-muted-foreground" />
@@ -217,10 +216,10 @@ export function ProfileContent() {
                   {/* Button for viewing order details */}
                   <Button variant="outline">View Details</Button>
                   {/* Cancel Order button if the order is in processing status */}
-                  {order.status === "Processing" && (
+                  {order.status === "Pending" && (
                     <Button
                       variant="destructive"
-                      onClick={() => handleCancelOrder(order._id)}
+                      onClick={() => handleCancelOrder(order._id, session?.user?.id)}
                     >
                       Cancel Order
                     </Button>
