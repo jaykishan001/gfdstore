@@ -16,7 +16,6 @@ export async function POST(req) {
     const images = formData.getAll("images");
 
     if (!name || !category || !price || !stock) {
-      
       return NextResponse.json(
         { message: "All fields are required" },
         { status: 400 }
@@ -59,20 +58,15 @@ export async function GET(req) {
   try {
     await dbConnect();
     const url = new URL(req.url);
-    const page = url.searchParams.get("page");
-    const limit = url.searchParams.get("limit");
+    const page = Number(url.searchParams.get("page")) || 1;
+    const limit = Number(url.searchParams.get("limit")) || 10;
     const categories = url.searchParams.get("categories");
     const minPrice = Number(url.searchParams.get("minPrice")) || 0;
     const maxPrice = Number(url.searchParams.get("maxPrice")) || Infinity;
     const sizes = url.searchParams.get("sizes");
     const search = url.searchParams.get("search")?.trim() || "";
 
-    const pageNum = Number(page?.trim()) || 1;
-    const limitNum = Number(limit?.trim()) || 10;
-
-    let filter = {
-      price: { $gte: minPrice, $lte: maxPrice },
-    };
+    let filter = { price: { $gte: minPrice, $lte: maxPrice } };
 
     if (categories) {
       filter.category = { $in: categories.split(",") };
@@ -91,7 +85,7 @@ export async function GET(req) {
       {
         $facet: {
           metadata: [{ $count: "totalCount" }],
-          data: [{ $skip: (pageNum - 1) * limitNum }, { $limit: limitNum }],
+          data: [{ $skip: (page - 1) * limit }, { $limit: limit }],
         },
       },
     ]);
@@ -99,21 +93,21 @@ export async function GET(req) {
     const totalProducts = articles[0].metadata[0]
       ? articles[0].metadata[0].totalCount
       : 0;
-    const totalPages = Math.ceil(totalProducts / limitNum);
+    const totalPages = Math.ceil(totalProducts / limit);
 
     return NextResponse.json(
       {
         products: articles[0].data,
         totalProducts,
         totalPages,
-        currentPage: pageNum,
+        currentPage: page,
       },
       { status: 200 }
     );
   } catch (error) {
     console.error(error);
     return NextResponse.json(
-      { message: "Error fetching products" },
+      { message: "Error fetching products. Please try again later." },
       { status: 500 }
     );
   }
@@ -181,11 +175,15 @@ export async function PUT(req) {
     }
 
     const name = formData.get("name") || existingProduct.name;
-    const description = formData.get("description") || existingProduct.description;
+    const description =
+      formData.get("description") || existingProduct.description;
     const category = formData.get("category") || existingProduct.category;
     const price = formData.get("price") || existingProduct.price;
     const stock = formData.get("stock") || existingProduct.stock;
-    const sizeOptions = formData.getAll("sizeOptions").length > 0 ? formData.getAll("sizeOptions") : existingProduct.sizeOptions;
+    const sizeOptions =
+      formData.getAll("sizeOptions").length > 0
+        ? formData.getAll("sizeOptions")
+        : existingProduct.sizeOptions;
     const newImages = formData.getAll("images");
 
     let updatedImages = existingProduct.images;
@@ -207,7 +205,6 @@ export async function PUT(req) {
       { new: true }
     );
 
-   
     if (category !== existingProduct.category) {
       await Category.findByIdAndUpdate(existingProduct.category, {
         $pull: { products: { _id: productId } },
