@@ -1,3 +1,7 @@
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@radix-ui/react-label";
+import { MapPin } from "lucide-react";
+
 export const AddressSelect = ({ addresses, value, onChange }) => (
   <div className="space-y-2">
     <Label htmlFor="address">Shipping Address</Label>

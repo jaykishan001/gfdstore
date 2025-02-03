@@ -72,8 +72,6 @@ export async function GET(req) {
   }
 }
 
-// File: app/api/cart/updateQuantity/route.js (for Next.js 13 or later with app directory)
-
 import { auth } from "@/auth";
 import mongoose from "mongoose";
 import { getServerSession } from "next-auth";

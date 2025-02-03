@@ -7,13 +7,13 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { triggerWishlistUpdate } from "./WishList";
 import { triggerCartUpdate } from "./CartIcon";
+import { useSession } from "next-auth/react";
 
 export function ProductCard({ _id, name, price, images, stock, description, sizeOptions }) {
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [isInCart, setIsInCart] = useState(false);
   const imageUrl = images[0];
-
-  const isLoggedIn = false;
+  const { data: session } = useSession();
 
   const loadStorageData = () => {
     const wishlist = JSON.parse(window.localStorage.getItem("wishlist")) || [];
@@ -44,27 +44,36 @@ export function ProductCard({ _id, name, price, images, stock, description, size
     triggerWishlistUpdate();
   };
 
-  const handleAddToCart = (e) => {
+  const handleAddToCart = async (e) => {
     e.preventDefault();
-    const product = {
-      _id,
-      name,
-      price,
-      imageUrl,
-      size: sizeOptions?.[0] || "", // Store the first available size
-    };
-    const cart = JSON.parse(window.localStorage.getItem("cart")) || [];
+    const product = { _id, name, price, imageUrl, size: sizeOptions?.[0] || "" };
 
-    if (isInCart) {
-      const updatedCart = cart.filter((item) => item._id !== _id);
-      window.localStorage.setItem("cart", JSON.stringify(updatedCart));
+    if (session?.user) {
+      // User is logged in, update the database
+      try {
+        const response = await fetch("/api/cart", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: session.user.id, products: [{ productId: _id, quantity: 1 }] })
+        });
+        if (!response.ok) throw new Error("Failed to update cart");
+      } catch (error) {
+        console.error("Error adding to cart:", error);
+      }
     } else {
-      cart.push(product);
-      window.localStorage.setItem("cart", JSON.stringify(cart));
+      // User is not logged in, update local storage
+      let cart = JSON.parse(localStorage.getItem("cart")) || [];
+      
+      if (isInCart) {
+        cart = cart.filter((item) => item._id !== _id);
+      } else {
+        cart.push(product);
+      }
+      
+      localStorage.setItem("cart", JSON.stringify(cart));
     }
 
     setIsInCart(!isInCart);
-    loadStorageData();
     triggerCartUpdate();
   };
 
