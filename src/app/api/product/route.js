@@ -65,6 +65,9 @@ export async function GET(req) {
     const sizes = url.searchParams.get("sizes");
     const search = url.searchParams.get("search")?.trim() || "";
 
+    const pageNum = Number(page?.trim()) || 1;
+    const limitNum = Number(limit?.trim()) || 10;
+
     let filter = {
       price: { $gte: minPrice, $lte: maxPrice },
     };
@@ -84,16 +87,23 @@ export async function GET(req) {
       },
     ]);
 
-    const totalProducts = productsData[0]?.metadata[0]?.totalCount || 0;
-    const totalPages = Math.ceil(totalProducts / limit);
+    const totalProducts = articles[0].metadata[0]
+      ? articles[0].metadata[0].totalCount
+      : 0;
+    const totalPages = Math.ceil(totalProducts / limitNum);
 
     return NextResponse.json(
-      { products: productsData[0].data, totalProducts, totalPages, currentPage: page },
+      {
+        products: articles[0].data,
+        totalProducts,
+        totalPages,
+        currentPage: pageNum,
+      },
       { status: 200 }
     );
   } catch (error) {
     return NextResponse.json(
-      { message: "Error fetching products", error: error.message },
+      { message: "Error fetching products" },
       { status: 500 }
     );
   }
@@ -161,11 +171,15 @@ export async function PUT(req) {
     }
 
     const name = formData.get("name") || existingProduct.name;
-    const description = formData.get("description") || existingProduct.description;
+    const description =
+      formData.get("description") || existingProduct.description;
     const category = formData.get("category") || existingProduct.category;
     const price = formData.get("price") || existingProduct.price;
     const stock = formData.get("stock") || existingProduct.stock;
-    const sizeOptions = formData.getAll("sizeOptions").length > 0 ? formData.getAll("sizeOptions") : existingProduct.sizeOptions;
+    const sizeOptions =
+      formData.getAll("sizeOptions").length > 0
+        ? formData.getAll("sizeOptions")
+        : existingProduct.sizeOptions;
     const newImages = formData.getAll("images");
 
     let updatedImages = existingProduct.images;
@@ -187,7 +201,6 @@ export async function PUT(req) {
       { new: true }
     );
 
-   
     if (category !== existingProduct.category) {
       await Category.findByIdAndUpdate(existingProduct.category, {
         $pull: { products: { _id: productId } },
