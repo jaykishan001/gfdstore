@@ -1,11 +1,11 @@
 "use client";
-import { useEffect, useState } from "react";
-import axios from "axios";
 import Container from "@/components/Container";
 import { ProductCard } from "@/components/ProductCard";
-import { FilterIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
+import axios from "axios";
+import { FilterIcon } from "lucide-react";
+import { useEffect, useState } from "react";
 
 const ProductPage = () => {
   const [products, setProducts] = useState([]);
@@ -57,7 +57,8 @@ const ProductPage = () => {
         categories: selectedCategories.join(","),
         minPrice: priceRange[0],
         maxPrice: priceRange[1],
-        sizes: selectedSizes.join(","),}
+        sizes: selectedSizes.join(","),
+      },
     }); // Debugging log
   }, [currentPage, selectedCategories, priceRange, selectedSizes]);
 
@@ -92,10 +93,16 @@ const ProductPage = () => {
   return (
     <Container className="px-4 mt-12">
       <main className="mx-auto py-8 max-w-[1400px]">
-        <h1 className="text-3xl font-semibold mb-8 text-center">Our Products</h1>
+        <h1 className="text-3xl font-semibold mb-8 text-center">
+          Our Products
+        </h1>
 
         <div className="mb-4">
-          <Button onClick={handleFilter} className="rounded-md" variant="outline">
+          <Button
+            onClick={handleFilter}
+            className="rounded-md"
+            variant="outline"
+          >
             <FilterIcon className="mr-2" /> Filter
           </Button>
         </div>
@@ -177,7 +184,9 @@ const ProductPage = () => {
             Page {currentPage} of {totalPages}
           </span>
           <button
-            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
             disabled={currentPage === totalPages}
             className="px-4 py-2 bg-gray-300 rounded-lg"
           >

@@ -6,7 +6,7 @@
 // import axios from "axios";
 
 // const CartIcon = () => {
-//   const { data: session } = useSession(); 
+//   const { data: session } = useSession();
 //   const [cartItemNumber, setCartItemNumber] = useState(0);
 //   const userId = session?.user;
 
@@ -14,14 +14,14 @@
 //     if (userId) {
 //       try {
 
-//         const res = await axios(`http://localhost:3000/api/users?id=${session.user.id}`); 
-//         setCartItemNumber(res.data.cart.length);
+//         const res = await axios(`http://localhost:3000/api/users?id=${session.user.id}`);
+//         setCartItemNumber(res.data.cart?.length);
 //       } catch (error) {
 //         console.error("Error fetching cart:", error);
 //       }
 //     } else {
 //       const cart = JSON.parse(window.localStorage.getItem("cart")) || [];
-//       setCartItemNumber(cart.length);
+//       setCartItemNumber(cart?.length);
 //     }
 //   }
 
@@ -36,7 +36,7 @@
 //     return () => {
 //       window.removeEventListener("cartUpdated", handleCartChange);
 //     };
-//   }, [session]); 
+//   }, [session]);
 
 //   return (
 //     <Link href={"/cart"} className="group relative">
@@ -56,30 +56,29 @@
 //   window.dispatchEvent(new Event("cartUpdated"));
 // };
 
-
 "use client";
-import { ShoppingBagIcon } from "lucide-react";
-import Link from "next/link";
-import React, { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
 import axios from "axios";
+import { ShoppingBagIcon } from "lucide-react";
+import { useSession } from "next-auth/react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
 const CartIcon = () => {
-  const { data: session } = useSession(); 
+  const { data: session } = useSession();
   const [cartItemNumber, setCartItemNumber] = useState(0);
 
   async function fetchCart() {
     if (session?.user) {
       try {
         const res = await axios.get(`/api/cart?userId=${session.user.id}`);
-        
-        setCartItemNumber(res.data.cart.product.length);
+
+        setCartItemNumber(res.data.cart.product?.length);
       } catch (error) {
         console.error("Error fetching cart:", error);
       }
     } else {
       const cart = JSON.parse(window.localStorage.getItem("cart")) || [];
-      setCartItemNumber(cart.length);
+      setCartItemNumber(cart?.length);
     }
   }
 

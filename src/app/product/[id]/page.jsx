@@ -179,8 +179,6 @@
 //   );
 // }
 
-
-
 "use client";
 
 import { triggerCartUpdate } from "@/components/CartIcon";
@@ -212,7 +210,11 @@ export default function ProductPage({ params: paramsPromise }) {
           const relatedResponse = await axios.get(
             `/api/productsbycategory?categoryId=${response.data.data.categoryId}`
           );
-          setRelatedProducts(relatedResponse.data.data.filter((p) => p._id !== response.data.data._id).slice(0, 5)); // You can limit the number of related products
+          setRelatedProducts(
+            relatedResponse.data.data
+              .filter((p) => p._id !== response.data.data._id)
+              .slice(0, 5)
+          ); // You can limit the number of related products
         }
       } catch (error) {
         console.error("Error fetching product:", error);
@@ -339,7 +341,7 @@ export default function ProductPage({ params: paramsPromise }) {
         </div>
       </div>
 
-      {relatedProducts.length > 0 && (
+      {relatedProducts?.length > 0 && (
         <div className="mt-10">
           <h2 className="text-xl font-bold mb-4">Related Products</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
@@ -352,8 +354,12 @@ export default function ProductPage({ params: paramsPromise }) {
                   height={200}
                   className="object-cover"
                 />
-                <h3 className="mt-4 text-lg font-semibold">{relatedProduct.name}</h3>
-                <p className="text-green-600">${relatedProduct.price.toFixed(2)}</p>
+                <h3 className="mt-4 text-lg font-semibold">
+                  {relatedProduct.name}
+                </h3>
+                <p className="text-green-600">
+                  ${relatedProduct.price.toFixed(2)}
+                </p>
                 <Link
                   href={`/product/${relatedProduct._id}`}
                   className="text-blue-600 hover:text-blue-800 mt-2 inline-block"

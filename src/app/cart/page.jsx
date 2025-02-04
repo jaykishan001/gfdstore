@@ -132,7 +132,7 @@ function CartPage() {
 
   return (
     <>
-      {cartItems.length > 0 ? (
+      {cartItems?.length > 0 ? (
         <div className="container mx-auto p-6 min-h-screen pt-24">
           <h1 className="text-3xl font-bold text-gray-800 mb-6">
             Your Shopping Cart

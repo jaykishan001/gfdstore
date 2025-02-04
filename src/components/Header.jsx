@@ -4,7 +4,6 @@ import Link from "next/link";
 import CartIcon from "./CartIcon";
 import Container from "./Container";
 import Logo from "./Logo";
-import MobileMenu from "./MobileMenu";
 import SearchBar from "./SearchBar";
 import { Button } from "./ui/button";
 import UserProfile from "./UserProfile";
@@ -25,7 +24,7 @@ const Header = async () => {
           </Logo>
         </div>
 
-        <div className="relative md:flex flex-1 justify-center z-30">
+        <div className="relative md:flex flex-1 justify-center z-30 w-96">
           <SearchBar />
         </div>
 

@@ -1,14 +1,14 @@
 "use client";
 import { HeartIcon } from "lucide-react";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 const WishList = () => {
   const [wishListNumber, setWishlistNumber] = useState(0);
 
   const updateWishlistCount = () => {
     const wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
-    setWishlistNumber(wishlist.length);
+    setWishlistNumber(wishlist?.length);
   };
 
   useEffect(() => {

@@ -1,10 +1,10 @@
 "use client";
+import { triggerCartUpdate } from "@/components/CartIcon";
 import Container from "@/components/Container";
-import React, { useEffect, useState } from "react";
-import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { triggerWishlistUpdate } from "@/components/WishList";
-import { triggerCartUpdate } from "@/components/CartIcon";
+import { Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
 
 const WishListPage = () => {
   const [wishlist, setWishlist] = useState([]);
@@ -16,7 +16,7 @@ const WishListPage = () => {
       const storedWishlist =
         JSON.parse(window.localStorage.getItem("wishlist")) || [];
       setWishlist(storedWishlist);
-      
+
       const storedCart = JSON.parse(window.localStorage.getItem("cart")) || [];
       setCart(storedCart);
     }
@@ -50,7 +50,7 @@ const WishListPage = () => {
       <div className="mt-32 px-4">
         <h1 className="text-2xl font-semibold mb-6">My Wishlist</h1>
         <div className="border w-full p-6 rounded-lg shadow-md bg-white">
-          {wishlist.length === 0 ? (
+          {wishlist?.length === 0 ? (
             <div className="container flex flex-col items-center mx-auto p-6 max-h-screen pt-24 space-y-2 h-[100vh] justify-center">
               <h1 className="text-4xl font-bold">Missing Cart items</h1>
               <p className="text-2xl">Login to see the items you added</p>
@@ -96,7 +96,6 @@ const WishListPage = () => {
                   </p>
 
                   <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
-                
                     <Button
                       onClick={() => addToCart(product)}
                       disabled={!product.stock || isInCart}

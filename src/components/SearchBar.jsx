@@ -1,7 +1,9 @@
 "use client";
 import axios from "axios";
 import { Search } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Button } from "./ui/button";
 
 const SearchBar = () => {
   const [query, setQuery] = useState("");
@@ -47,9 +49,10 @@ const SearchBar = () => {
   }, [query]);
 
   console.log("Suggestions:", suggestions);
+  const router = useRouter();
 
   return (
-    <div className="relative w-72">
+    <div className="relative w-96">
       <div className="flex items-center border p-2 rounded-lg bg-white shadow-md">
         <Search className="w-5 h-5 text-gray-500 mr-2" />
         <input
@@ -59,14 +62,27 @@ const SearchBar = () => {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
+
+        <Button
+          onClick={() => {
+            if (query.trim() === "") {
+              return;
+            }
+
+            router.push(`/search/${query}`);
+            setQuery("");
+          }}
+        >
+          Search
+        </Button>
       </div>
 
       {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
 
       {/* Suggestions Container */}
-      
+
       <div className="relative">
-        {suggestions.length > 0 && (
+        {suggestions?.length > 0 && (
           <ul className=" left-0 w-full bg-white border border-gray-200 shadow-lg mt-1 rounded-md max-h-48 overflow-auto z-50">
             {suggestions.map((product) => (
               <li

@@ -1,18 +1,26 @@
 "use client";
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { Heart } from "lucide-react";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { triggerWishlistUpdate } from "./WishList";
-import { triggerCartUpdate } from "./CartIcon";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Heart } from "lucide-react";
 import { useSession } from "next-auth/react";
+import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { triggerCartUpdate } from "./CartIcon";
+import { triggerWishlistUpdate } from "./WishList";
 
-export function ProductCard({ _id, name, price, images, stock, description, sizeOptions }) {
+export function ProductCard({
+  _id,
+  name,
+  price,
+  images,
+  stock,
+  description,
+  sizeOptions,
+}) {
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [isInCart, setIsInCart] = useState(false);
-  const imageUrl = images[0]|| "";
+  const imageUrl = images[0] || "";
   const { data: session } = useSession();
 
   const loadStorageData = () => {
@@ -46,14 +54,23 @@ export function ProductCard({ _id, name, price, images, stock, description, size
 
   const handleAddToCart = async (e) => {
     e.preventDefault();
-    const product = { _id, name, price, imageUrl, size: sizeOptions?.[0] || "" };
+    const product = {
+      _id,
+      name,
+      price,
+      imageUrl,
+      size: sizeOptions?.[0] || "",
+    };
 
     if (session?.user) {
       try {
         const response = await fetch("/api/cart", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId: session.user.id, products: [{ productId: _id, quantity: 1 }] })
+          body: JSON.stringify({
+            userId: session.user.id,
+            products: [{ productId: _id, quantity: 1 }],
+          }),
         });
         if (!response.ok) throw new Error("Failed to update cart");
         triggerCartUpdate();
@@ -62,13 +79,13 @@ export function ProductCard({ _id, name, price, images, stock, description, size
       }
     } else {
       let cart = JSON.parse(localStorage.getItem("cart")) || [];
-      
+
       if (isInCart) {
         cart = cart.filter((item) => item._id !== _id);
       } else {
         cart.push(product);
       }
-      
+
       localStorage.setItem("cart", JSON.stringify(cart));
       triggerCartUpdate();
     }
@@ -101,14 +118,20 @@ export function ProductCard({ _id, name, price, images, stock, description, size
             </button>
           </div>
 
-          <h3 className="text-lg font-semibold mt-3 truncate text-gray-800">{name}</h3>
+          <h3 className="text-lg font-semibold mt-3 truncate text-gray-800">
+            {name}
+          </h3>
           <p className="text-gray-600 text-sm">${price?.toFixed(2)}</p>
-          <p className="text-gray-500 text-xs mt-1">{stock > 0 ? `${stock} in stock` : "Out of stock"}</p>
-          
-          <p className="text-gray-700 text-sm mt-2">
-            {description?.length > 20? description.slice(0, 30) + "..." : description}
+          <p className="text-gray-500 text-xs mt-1">
+            {stock > 0 ? `${stock} in stock` : "Out of stock"}
           </p>
-          
+
+          <p className="text-gray-700 text-sm mt-2">
+            {description?.length > 20
+              ? description.slice(0, 30) + "..."
+              : description}
+          </p>
+
           {sizeOptions?.length > 0 && (
             <div className="mt-2 text-sm text-gray-700">
               <span className="font-semibold">Available Sizes:</span>

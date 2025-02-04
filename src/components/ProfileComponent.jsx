@@ -62,7 +62,13 @@ export function ProfileContent() {
   };
 
   const handleSaveAddress = async () => {
-    if (!newAddress.street || !newAddress.city || !newAddress.state || !newAddress.zipCode || !newAddress.country) {
+    if (
+      !newAddress.street ||
+      !newAddress.city ||
+      !newAddress.state ||
+      !newAddress.zipCode ||
+      !newAddress.country
+    ) {
       alert("Please fill out all the fields.");
       return;
     }
@@ -73,61 +79,75 @@ export function ProfileContent() {
       state: newAddress.state,
       postalCode: newAddress.zipCode,
       country: newAddress.country,
-      phone: userData?.phone, 
+      phone: userData?.phone,
       user_Id: session?.user?.id,
     };
-  
+
     try {
       console.log(addressData);
-      const response = await axios.post("http://localhost:3000/api/address", addressData);
-  
+      const response = await axios.post(
+        "http://localhost:3000/api/address",
+        addressData
+      );
+
       if (response.status === 200) {
         alert("Address added successfully!");
         setUserData((prev) => ({
           ...prev,
           address: [...prev.address, response.data.address],
         }));
-        setShowAddressForm(false); 
-        setNewAddress({ street: "", city: "", state: "", zipCode: "", country: "" }); 
+        setShowAddressForm(false);
+        setNewAddress({
+          street: "",
+          city: "",
+          state: "",
+          zipCode: "",
+          country: "",
+        });
       } else {
         alert("Failed to add address. Please try again.");
       }
     } catch (error) {
       console.error("Error adding address:", error);
-      alert("An error occurred while adding the address. Please try again later.");
+      alert(
+        "An error occurred while adding the address. Please try again later."
+      );
     }
   };
-  
 
   const handleLogout = async () => {
-      await signOut({
-        redirect: true, 
-        callbackUrl: "/login", 
-      });
-      setOpen(false); 
-    };
+    await signOut({
+      redirect: true,
+      callbackUrl: "/login",
+    });
+    setOpen(false);
+  };
 
   const handleCancelOrder = async (orderId, userId) => {
-  console.log("Canceling order:", orderId, userId);
-  try {
-    const response = await axios.post("http://localhost:3000/api/productorder", { orderId, userId });
-    console.log('response of order', response)
-    if (response.data?.success) {
-      setUserData((prevData) => ({
-        ...prevData,
-        orderHistory: prevData.orderHistory.filter((order) => order._id !== orderId),
-      }));
+    console.log("Canceling order:", orderId, userId);
+    try {
+      const response = await axios.post(
+        "http://localhost:3000/api/productorder",
+        { orderId, userId }
+      );
+      console.log("response of order", response);
+      if (response.data?.success) {
+        setUserData((prevData) => ({
+          ...prevData,
+          orderHistory: prevData.orderHistory.filter(
+            (order) => order._id !== orderId
+          ),
+        }));
 
-      alert("Order canceled successfully!");
-    } else {
-      alert(response.data?.message || "Failed to cancel the order.");
+        alert("Order canceled successfully!");
+      } else {
+        alert(response.data?.message || "Failed to cancel the order.");
+      }
+    } catch (error) {
+      console.error("Error canceling order:", error);
+      alert("An error occurred while canceling the order.");
     }
-  } catch (error) {
-    console.error("Error canceling order:", error);
-    alert("An error occurred while canceling the order.");
-  }
-};
-  
+  };
 
   if (status === "loading" || loading) {
     return <div>Loading...</div>;
@@ -227,7 +247,9 @@ export function ProfileContent() {
                   {order.status === "Pending" && (
                     <Button
                       variant="destructive"
-                      onClick={() => handleCancelOrder(order._id, session?.user?.id)}
+                      onClick={() =>
+                        handleCancelOrder(order._id, session?.user?.id)
+                      }
                     >
                       Cancel Order
                     </Button>
@@ -241,7 +263,7 @@ export function ProfileContent() {
         </CardContent>
       </Card>
     ),
-    
+
     address: (
       <Card>
         <CardHeader>
@@ -395,7 +417,11 @@ export function ProfileContent() {
               <CardTitle>Account Actions</CardTitle>
             </CardHeader>
             <CardContent>
-              <Button oncClick={handleLogout} variant="destructive" className="w-full sm:w-auto">
+              <Button
+                oncClick={handleLogout}
+                variant="destructive"
+                className="w-full sm:w-auto"
+              >
                 <LogOut className="mr-2 h-4 w-4" />
                 Sign Out
               </Button>
