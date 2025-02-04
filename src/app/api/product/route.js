@@ -65,8 +65,8 @@ export async function GET(req) {
     const sizes = url.searchParams.get("sizes");
     const search = url.searchParams.get("search")?.trim() || "";
 
-    const pageNum = Number(page?.trim()) || 1;
-    const limitNum = Number(limit?.trim()) || 10;
+    const pageNum = isNaN(page) || page < 1 ? 1 : page;
+    const limitNum = isNaN(limit) || limit < 1 ? 10 : limit;
 
     let filter = {
       price: { $gte: minPrice, $lte: maxPrice },
@@ -82,19 +82,18 @@ export async function GET(req) {
       {
         $facet: {
           metadata: [{ $count: "totalCount" }],
-          data: [{ $skip: (page - 1) * limit }, { $limit: limit }],
+          data: [{ $skip: (pageNum - 1) * limitNum }, { $limit: limitNum }],
         },
       },
     ]);
 
-    const totalProducts = articles[0].metadata[0]
-      ? articles[0].metadata[0].totalCount
-      : 0;
+    const totalProducts =
+      productsData[0].metadata.length > 0 ? productsData[0].metadata[0].totalCount : 0;
     const totalPages = Math.ceil(totalProducts / limitNum);
 
     return NextResponse.json(
       {
-        products: articles[0].data,
+        products: productsData[0].data,
         totalProducts,
         totalPages,
         currentPage: pageNum,
@@ -102,12 +101,14 @@ export async function GET(req) {
       { status: 200 }
     );
   } catch (error) {
+    console.error("Error fetching products:", error);
     return NextResponse.json(
-      { message: "Error fetching products" },
+      { message: "Error fetching products", error: error.message },
       { status: 500 }
     );
   }
 }
+
 
 export async function DELETE(req) {
   try {
