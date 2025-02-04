@@ -119,22 +119,13 @@ export function ProductUploadForm() {
     values.images.forEach((image) => formData.append("images", image))
 
     try {
-      if (id) {
-        await axios.put(`http://localhost:3000/api/product${id}`, formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        })
-        console.log("Product updated successfully")
-      } else {
-        // Create new product
+     
         await axios.post("http://localhost:3000/api/product", formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
         })
         console.log("Product created successfully")
-      }
       router.push("/admin/products")
     } catch (error) {
       console.error("Error:", error.response?.data?.message || error.message)
@@ -401,7 +392,7 @@ export function ProductUploadForm() {
         </Button>
       
 
-        <Button type="submit" className="w-full">
+        {/* <Button type="submit" className="w-full">
           {form.formState.isSubmitting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -410,7 +401,7 @@ export function ProductUploadForm() {
           ) : (
             isEditing ? "Edit Product" : "Add New Product"
           )}
-        </Button>
+        </Button> */}
       </form>
     </Form>
   )

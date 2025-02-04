@@ -11,8 +11,8 @@ const HeaderCategoryOptions = ({ activePage }) => {
         ${activePage === "Home" ? "h-[20vh]" : "h-auto py-2"}`}
       >
         {visitOptions.map((option) => (
-          <Link key={option.title} href={`/category/${option.route}`} passHref>
-            <div
+          
+            <div key={option.title}
               className={`flex flex-col items-center justify-center p-2 sm:p-4 rounded-lg transition-all duration-300 min-w-[80px] sm:min-w-[120px] 
               ${
                 option.title === activePage
@@ -37,7 +37,6 @@ const HeaderCategoryOptions = ({ activePage }) => {
                 {option.title}
               </Label>
             </div>
-          </Link>
         ))}
       </div>
     </Container>

@@ -16,26 +16,26 @@ const ProductPage = () => {
   const [limit] = useState(10);
   const [filter, setFilter] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState([]);
-  const [priceRange, setPriceRange] = useState([0, 1000]); 
+  const [priceRange, setPriceRange] = useState([0, 1000]);
   const [selectedSizes, setSelectedSizes] = useState([]);
-
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/api/product", {
+        const response = await axios.get("/api/product", {
           params: {
             page: currentPage,
             limit,
-            categories: selectedCategories.join(","),
-            minPrice: priceRange[0],
-            maxPrice: priceRange[1],
-            sizes: selectedSizes.join(","),
+            // categories: selectedCategories.join(","),
+            // minPrice: priceRange[0],
+            // maxPrice: priceRange[1],
+            // sizes: selectedSizes.join(","),
           },
         });
         setProducts(response.data.products);
         setTotalPages(response.data.totalPages);
       } catch (err) {
+        console.error("Error fetching products:", err); // Debugging log
         setError("Failed to fetch products");
       } finally {
         setLoading(false);
@@ -43,6 +43,22 @@ const ProductPage = () => {
     };
 
     fetchProducts();
+  }, [currentPage, selectedCategories, priceRange, selectedSizes]);
+
+  useEffect(() => {
+    console.log("Products State:", products); // Debugging log
+  }, [products]);
+
+  useEffect(() => {
+    console.log("Filter Parameters:", {
+      params: {
+        page: currentPage,
+        limit,
+        categories: selectedCategories.join(","),
+        minPrice: priceRange[0],
+        maxPrice: priceRange[1],
+        sizes: selectedSizes.join(","),}
+    }); // Debugging log
   }, [currentPage, selectedCategories, priceRange, selectedSizes]);
 
   if (loading) return <p className="text-center mt-12">Loading products...</p>;
@@ -107,7 +123,6 @@ const ProductPage = () => {
                 </div>
               </div>
 
-              {/* Price Filter */}
               <div className="flex-1">
                 <h3 className="font-semibold mb-2 text-lg">Price Range</h3>
                 <Slider
@@ -123,7 +138,6 @@ const ProductPage = () => {
                 </div>
               </div>
 
-              {/* Size Filter */}
               <div className="flex-1">
                 <h3 className="font-semibold mb-2 text-lg">Size</h3>
                 <div className="flex flex-wrap gap-4">
@@ -145,14 +159,12 @@ const ProductPage = () => {
           </div>
         )}
 
-        {/* Product Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
           {products.map((product) => (
             <ProductCard key={product._id} {...product} />
           ))}
         </div>
 
-        {/* Pagination */}
         <div className="mt-6 flex justify-center space-x-4">
           <button
             onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}

@@ -58,21 +58,36 @@ export function ProductList() {
     fetchProducts()
   }, [currentPage, searchTerm])
 
+  // const handleDelete = async (productId) => {
+  //   try {
+  //     await deleteProduct(productId)
+  //     setProducts(products.filter((product) => product._id !== productId))
+  //   } catch (error) {
+  //     console.error("Failed to delete product:", error)
+  //     // Optionally, show an error message to the user
+  //   }
+  // }
+
   const handleDelete = async (productId) => {
     try {
-      await deleteProduct(productId)
-      setProducts(products.filter((product) => product._id !== productId))
+      await deleteProduct(productId);
+      // Re-fetch product list after deletion
+      const response = await axios.get("/api/product", {
+        params: { page: currentPage, limit, search: searchTerm },
+      });
+      setProducts(response.data.products);
+      setTotalPages(response.data.totalPages);
     } catch (error) {
-      console.error("Failed to delete product:", error)
-      // Optionally, show an error message to the user
+      console.error("Failed to delete product:", error);
     }
-  }
-
+  };
+  
+  
   const router = useRouter();
 
-  const handleEdit = (productId) => {
-    router.push(`/admin/products/upload?id=${productId}`);
-  };
+  // const handleEdit = (productId) => {
+  //   router.push(`/admin/products/upload?id=${productId}`);
+  // };
 
   if (loading) return <div className="text-center py-10">Loading products...</div>
   if (error) return <div className="text-center py-10 text-red-500">{error}</div>
@@ -124,9 +139,9 @@ export function ProductList() {
                 <TableCell>{product.quantity}</TableCell>
                 <TableCell>${product.price.toFixed(2)}</TableCell>
                 <TableCell className="text-right">
-                  <Button onClick={()=>handleEdit(product._id)} variant="ghost" size="icon" className="mr-2">
+                  {/* <Button onClick={()=>handleEdit(product._id)} variant="ghost" size="icon" className="mr-2">
                     <Edit className="h-4 w-4" />
-                  </Button>
+                  </Button> */}
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button variant="ghost" size="icon">
